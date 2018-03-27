@@ -5,8 +5,8 @@ A Single-shot Camera-Projector Calibration System For Imperfect Planar Targets
 A single-shot camera-projector calibration method that deals with imperfect planarity of the calibration target. 
 
 Highlights:
-* The proposed method performs camera-projector pair calibration with only a single-shot, making it practically convenient in many applications. It can provide a flexible and accurate results even when the board is handheld.
-* A bundle adjustment (BA) algorithm is developed to jointly optimize the estimated camera & projector models and calibration points in model space. 
+* The proposed method performs camera-projector pair calibration with only a single-shot, making it practically convenient in many applications. It can provide flexible and accurate results even when the board is handheld.
+* A bundle adjustment (BA) algorithm is developed to jointly optimize the estimated camera/projector models and feature points in model space. 
 * Unlike many existing methods, to calibrate the system, we apply points from an **Structured light (SL) pattern** rather than from a checkerboard. This strategy boosts not only the number of feature points but also their spatial distribution, and hence improves calibration robustness.
 
 For more info please refer to our [paper][1].
@@ -18,7 +18,7 @@ For more info please refer to our [paper][1].
 ## Usage
 ### Reproduce paper results:
 1. Run `calibrate.m` to generate experiment results of the proposed method.
-2. Run `compareCalibrations.m` to generate comparison results with **real data**.  The proposed method, a generalized global homography-based method, the proposed w/o bundle adjustment and [Moreno & Taubin method][3] are compared. The reprojection error and 3D alignment error will be printed to MATLAB command line.
+2. Run `compareCalibrations.m` to generate comparison results with **real data**.  The proposed method, a generalized global homography-based method, the proposed w/o bundle adjustment and [Moreno & Taubin method][3] are compared.
 3. Run `simulateCalib.m` to generate comparison results with **synthetic data** .
 
 ----
@@ -56,7 +56,7 @@ To apply the proposed method to your data, please follow these steps:
     # Size of checkerboard squares in mm
     sqSize: 17.1979
 
-    # Sets to use for calibration
+    # Sets (position indices) to use for calibration
     sets: [1,2,3,4,5,6,7]
     ```
 9. Edit `dataRoot` and `dataName` in  `calibrate.m` to point to the root of data folder and the folder you just created, then run `calibrate.m` to calibrate the camera-projector pair.
@@ -107,12 +107,12 @@ The project folder is organized as follows:
 Please cite these papers in your publications if it helps your research:
 
     @inproceedings{huang2014fast,
-    title={Fast 3D reconstruction using one-shot spatial structured light},
-    author={Huang, Bingyao and Tang, Ying},
-    booktitle={Systems, Man and Cybernetics (SMC), 2014 IEEE International Conference on},
-    pages={531--536},
-    year={2014},
-    organization={IEEE}
+        title={Fast 3D reconstruction using one-shot spatial structured light},
+        author={Huang, Bingyao and Tang, Ying},
+        booktitle={Systems, Man and Cybernetics (SMC), 2014 IEEE International Conference on},
+        pages={531--536},
+        year={2014},
+        organization={IEEE}
     }
 
 ## License
