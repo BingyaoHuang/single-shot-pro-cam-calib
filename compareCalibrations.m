@@ -163,9 +163,9 @@ for i = 1:calibInfo.numSets
     Xm{i} = curXm;
     
     % random sample points to reduce computation and ram
-%     k = 200;
+%     k = 500;
 %     if(length(Xm{i}) > k)
-%         idx = randsample(length(Xm{i}), 100);
+%         idx = randsample(length(Xm{i}), k);
 %         Xm{i} = Xm{i}(idx,:);
 %         Xc{i} = Xc{i}(idx,:);
 %         Xp{i} = Xp{i}(idx,:);
@@ -294,5 +294,7 @@ disp('Calibration reprojection errors:');
 disp(calibTable);
 
 %% Step 9. Compare 3D reconstruction
-reconSet = '10'; % no need to write in %02d format
+% for calibration-11-13-17, you can use reonSet 8 (folded paper board), 9
+% (plaster bust), 10 (paper box).
+reconSet = '10'; % no need to write as %02d format
 linkedFigs = Calibration.compareRealData(reconSet, calTypes, algNames, calibInfo);

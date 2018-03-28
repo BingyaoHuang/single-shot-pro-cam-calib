@@ -106,20 +106,19 @@ The project folder is organized as follows:
 ## Citation
 Please cite these papers in your publications if it helps your research:
 
-    @inproceedings{huang2014fast,
-        title={Fast 3D reconstruction using one-shot spatial structured light},
-        author={Huang, Bingyao and Tang, Ying},
-        booktitle={Systems, Man and Cybernetics (SMC), 2014 IEEE International Conference on},
-        pages={531--536},
-        year={2014},
-        organization={IEEE}
+    @article{huang2018a,
+        title={A Single-shot Camera-Projector Calibration System For Imperfect Planar Targets},
+        author={Huang, Bingyao and Ozdemir, Samed and Tang, Ying and Ling, Haibin},
+        journal={arXiv preprint arXiv:1803.09058},
+        year={2018}
     }
+
 
 ## License
 This software is freely available for non-profit non-commercial use, and may be redistributed under the conditions in [license](LICENSE).
 
 
-[1]: arxiv
+[1]: https://arxiv.org/pdf/1803.09058.pdf
 [2]: https://github.com/kyamagu/mexopencv
 [3]: http://mesh.brown.edu/calibration/
 [4]: https://www.mathworks.com/help/vision/ref/detectcheckerboardpoints.html
