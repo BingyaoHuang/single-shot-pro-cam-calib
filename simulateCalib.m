@@ -54,7 +54,7 @@ numSigma = length(vecNoise);
 numTrials = 100;
 
 % add gaussian white noise on projector image and multiple trial each noise level
-disp('[Simulation] Gaussian white noise added to camera & projector image and checkerboard...');
+disp('[Simulation] Gaussian white noise added to camera image, projector image and calibration board (including checkerboard corners and structured light nodes)...');
 disp(['Noise standard deviation range is 0 ~ ', num2str(maxSigma)]);
 
 tic
