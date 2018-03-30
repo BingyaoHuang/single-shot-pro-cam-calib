@@ -28,6 +28,11 @@ params = cv.FileStorage(fullfile(calibInfo.resultDir, fileName));
 % load calibration data
 gt = params;
 
+% convert cell to mat
+if(isa(gt.sets,'cell'))
+    gt.sets = cell2mat(gt.sets);
+end
+
 % remove skew if it has
 gt.camK(1,2) = 0;
 gt.prjK(1,2) = 0;
