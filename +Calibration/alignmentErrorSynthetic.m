@@ -1,26 +1,30 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Compute 3d alignment error given params
-% Author: Bingyao Huang <hby001@gmail.com>
-% Date: 09/06/2017
-
-%% Descriptions
-% This function computes 3d alignment error given params. Alignment error
-% is the mean distance between reconstructed 3d points and the ground truth
-% 3d points.
-
-%% Coordinate system (very important)
-% OpenCV:  camera right is +X, camera up is -Y and camera forward is +Z.
-% World origin is camera optical center, thus camera view space = world 
-% space.
-
-% R and T are rotation matrix and translation vector that brings a point in
-% camera view space (world space) to projector view space.
-
-% So a point in projector space Pprjview can be expressed in camera view
-% (world) space as: Pworld = Pcamview = R'*Pprjview + (-R'*T)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 function [rmsAlignErr] = alignmentErrorSynthetic(estPts3d, gtpts3d, verbose, figName)
+%% Compute 3d alignment error for synthetic data.
+% 3d alignment error is the mean distance between reconstructed 3d points 
+% and the ground truth 3d points.
+
+%% License
+% ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
+% Copyright (c) 2018 Bingyao Huang
+% All rights reserved.
+
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met: 
+
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+
+% If you publish results obtained using this software, please cite our paper.
+
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
+
+%%
 
 % alignment residual
 alignRes = estPts3d - gtpts3d;
