@@ -107,9 +107,9 @@ The project folder is organized as follows:
 Please cite these papers in your publications if it helps your research:
 
     @article{huang2018a,
-        title={A Single-shot Camera-Projector Calibration System For Imperfect Planar Targets},
-        author={Huang, Bingyao and Ozdemir, Samed and Tang, Ying and Ling, Haibin},
-        journal={arXiv preprint arXiv:1803.09058},
+        title={A Single-shot-per-pose Camera-Projector Calibration System For Imperfect Planar Targets},
+        author={Huang, Bingyao and Ozdemir, Samed and Liao, Chunyuan and Tang, Ying and Ling, Haibin},
+        journal={International Symposium on Mixed and Augmented Reality (ISMAR)},
         year={2018}
     }
 
