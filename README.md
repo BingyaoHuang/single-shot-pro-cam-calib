@@ -1,11 +1,11 @@
-A Single-shot Camera-Projector Calibration System For Imperfect Planar Targets
+A Single-shot-per-pose Camera-Projector Calibration System For Imperfect Planar Targets
 ===
 
 ## Introduction
-A single-shot camera-projector calibration method that deals with imperfect planarity of the calibration target. 
+A Single-shot-per-pose camera-projector calibration method that deals with imperfect planarity of the calibration target. 
 
 Highlights:
-* The proposed method performs camera-projector pair calibration with only a single-shot, making it practically convenient in many applications. It can provide flexible and accurate results even when the board is handheld.
+* The proposed method performs camera-projector pair calibration with only a Single-shot-per-pose, making it practically convenient in many applications. It can provide flexible and accurate results even when the board is handheld.
 * A bundle adjustment (BA) algorithm is developed to jointly optimize the estimated camera/projector models and feature points in model space. 
 * Unlike many existing methods, to calibrate the system, we apply points from a **Structured Light (SL) pattern** rather than from a checkerboard. This strategy boosts not only the number of feature points but also their spatial distribution, and hence improves calibration robustness.
 
