@@ -1,4 +1,4 @@
-function im = genStructuredLight(prjW, prjH)
+function im = genStructuredLight(prjW, prjH, brightness)
 %% Generate color-coded structured light pattern for calibration.
 % prjW and prjH are the projector screen resolution's width and height in pixel.
 
@@ -24,6 +24,9 @@ function im = genStructuredLight(prjW, prjH)
 % SOFTWARE.
 
 [horiList, vertList, horiPos, vertPos] = ImgProc.createDeBruijnSeq(prjW, prjH);
+if(nargin < 3)
+    brightness = 1.0;
+end
 
 r = [1, 0, 0];
 y = [1, 0.75, 0];
@@ -34,7 +37,7 @@ b = [0, 0.25, 1];
 p = [0.75, 0, 1];
 m = [1, 0, 0.75];
 
-colorList = [r; y; l; g; c; b; p; m];
+colorList = [r; y; l; g; c; b; p; m] * brightness;
 
 % rgb image
 im = zeros(prjH, prjW, 3);
