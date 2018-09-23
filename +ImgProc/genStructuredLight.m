@@ -23,10 +23,22 @@ function im = genStructuredLight(prjW, prjH, brightness)
 % OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 % SOFTWARE.
 
-[horiList, vertList, horiPos, vertPos] = ImgProc.createDeBruijnSeq(prjW, prjH);
 if(nargin < 3)
     brightness = 1.0;
 end
+
+imW = 1920;
+imH = 1080;
+
+if(prjW > imW)
+    imW = prjW;
+end
+
+if(prjH > imH)
+    imH = prjH;
+end
+
+[horiList, vertList, horiPos, vertPos] = ImgProc.createDeBruijnSeq(imW, imH);
 
 r = [1, 0, 0];
 y = [1, 0.75, 0];
@@ -40,22 +52,26 @@ m = [1, 0, 0.75];
 colorList = [r; y; l; g; c; b; p; m] * brightness;
 
 % rgb image
-im = zeros(prjH, prjW, 3);
+imLarge = zeros(imH, imW, 3);
 
 for j = 1:length(vertPos)
     curPos = vertPos(j);
     curPixel = reshape(colorList(vertList(j),:), [1, 1, 3]);
-    curStripe = repmat(curPixel, [prjH, 3, 1]);
-    im(:,curPos-1:curPos+1,:) = curStripe;
+    curStripe = repmat(curPixel, [imH, 3, 1]);
+    imLarge(:,curPos-1:curPos+1,:) = curStripe;
+
 end
 
 for i = 1:length(horiPos)
     curPos = horiPos(i);
     curPixel = reshape(colorList(horiList(i),:), [1, 1, 3]);
-    curStripe = repmat(curPixel, [3, prjW, 1]);
-    im(curPos-1:curPos+1,:,:) = curStripe;
+    curStripe = repmat(curPixel, [3, imW, 1]);
+    imLarge(curPos-1:curPos+1,:,:) = curStripe;
+
 end
 
-% fs(im)
+%% Crop the pattern image according to projector resolution
+
+im = imLarge(1:prjH, 1:prjW,:);
 end
 

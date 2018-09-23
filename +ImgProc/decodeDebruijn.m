@@ -24,8 +24,19 @@ function Nodes = decodeDebruijn(Nodes, prjW, prjH)
 % SOFTWARE.
 
 %%
+imW = 1920;
+imH = 1080;
 
-[horiList, vertList, horiPos, vertPos] = ImgProc.createDeBruijnSeq(prjW,prjH);
+if(prjW > imW)
+    imW = prjW;
+end
+
+if(prjH > imH)
+    imH = prjH;
+end
+
+[horiList, vertList, horiPos, vertPos] = ImgProc.createDeBruijnSeq(imW, imH);
+
 [Nodes.horiCode] = deal(-1);
 [Nodes.vertCode] = deal(-1);
 
