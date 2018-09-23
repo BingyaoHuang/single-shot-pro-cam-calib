@@ -36,9 +36,21 @@ end
 % Convert RGB image into HSV color space.
 % imHsv = rgb2hsv(imLight);
 % imV = imHsv(:,:,3); % intensity channelim
-imLightEnhance = ImgProc.imadjust3(imLight);
-imGray = mat2gray(rgb2gray(imLightEnhance)); % normalized gray
-imBWBoard = false(size(imGray));
+% imLightEnhance = ImgProc.imadjust3(imLight);
+% imGray = mat2gray(rgb2gray(imLightEnhance)); % normalized gray
+
+% find color grid pixels
+im1 = rgb2hsv(imColorGrid);
+im2 = rgb2hsv(imLight);
+s = mean(im1(:,:,3)) / mean(im2(:,:,3));
+s = min(s, 1);
+imGrid = imColorGrid-s*imLight;
+imGrayGrid = rgb2gray(imColorGrid-s*imLight);
+imGridROI = bwconvhull(bwareafilt(imGrayGrid > mean(imGrayGrid(:)), 1));
+imLightMasked = ImgProc.maskImage(imLight, imGridROI);
+imGrayMasked = rgb2gray(imLightMasked); % normalized gray
+
+imBWBoard = false(size(imGrayMasked));
 
 % get bounding box corners of the checkerboard
 maxXY = max(camCorners);
@@ -57,7 +69,7 @@ for i = 1:length(permsX)
         y = round(permsY(j));
         
         % find the brightest pixel index in a 5x5 local roi
-        imRoi = imgaussfilt(imGray(y-winSize:y+winSize,x-winSize:x+winSize));
+        imRoi = imgaussfilt(imGrayMasked(y-winSize:y+winSize,x-winSize:x+winSize));
         [maxVal, maxIdx] = max(imRoi(:));
         
         % convert back to global row and col
@@ -66,7 +78,7 @@ for i = 1:length(permsX)
         row = row + y - winSize - 1;
         
         % Flood fill using geodesic distance
-        imCurSeg = ImgProc.segFloodFill(imLightEnhance, row, col);
+        imCurSeg = ImgProc.segFloodFill(imLightMasked, row, col);
         imBWBoard = imBWBoard | imCurSeg;
         
         if(verbose)
@@ -75,6 +87,7 @@ for i = 1:length(permsX)
     end
 end
 
+% imBWBoard = bwconvhull(imBWBoard);
 
 % imWeight = graydiffweight(imLabNorm, col, row, 'GrayDifferenceCutoff', tol);
 % imBWBoard = imsegfmm(imWeight, col, row, 0.01);
@@ -117,11 +130,11 @@ if(verbose)
 end
 
 %% Segment color grid
-im1 = rgb2hsv(imColorGrid);
-im2 = rgb2hsv(imLight);
-s = mean(im1(:,:,3)) / mean(im2(:,:,3));
-s = min(s, 1);
-imColorGridMasked = ImgProc.maskImage(imColorGrid-s*imLight, imBWBoardMask);
+% im1 = rgb2hsv(imColorGrid);
+% im2 = rgb2hsv(imLight);
+% s = mean(im1(:,:,3)) / mean(im2(:,:,3));
+% s = min(s, 1);
+imColorGridMasked = ImgProc.maskImage(imGrid, imBWBoardMask);
 
 % enhance color
 imColorGridMasked = ImgProc.imadjust3(imColorGridMasked);
@@ -142,6 +155,10 @@ se1 = strel('line',2,0);
 se2 = strel('line',2,90);
 imBWGrid = imclose(imBWGrid, se1);
 imBWGrid = imclose(imBWGrid, se2);
+
+% clean edges
+imBWCb = imdilate(imBWCb, ones(8, 8));
+imBWGrid(imBWCb(:)) = 0;
 
 if(verbose)
     subplot(2,2,3);
