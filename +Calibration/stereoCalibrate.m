@@ -1,42 +1,35 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function stereoParams = stereoCalibrate(modelPtsCell, camImgPtsCell, prjImgPtsCell, camImgSize, prjImgSize, objective)
 %% Calibrates camera and projector parameters using bundle adjustment
-% Author: Bingyao Huang <hby001@gmail.com>
-% Date: 10/21/2017
-
-%% Descriptions
+%
 % This function calibrates camera and projector intrinsics and extrinsics
 % using bundle adjustment (BA). During the bundle adjustment, we also
 % modify the 3d coordinates of the grid points in model space. However,
 % performing Least Squares Nonlinear optimization on all intrinsics,
 % extrinsics and model points is both unstable and computational expensive
-% So we must provide the Jacobian matrix pattern to the lsqnonlin option
+% So we must provide the Jacobian matrix pattern to the lsqnonlin option.
+%
+% See also: Calibration.calibrateStereoInitGuess
 
-%% Coordinate system (very important)
-% OpenCV:  camera right is +X, camera up is -Y and camera forward is +Z.
-% World origin is camera optical center, thus camera view space = world
-% space.
+%% License
+% ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
+% Copyright (c) 2018 Bingyao Huang
+% All rights reserved.
 
-% R and T are rotation matrix and translation vector that brings a point in
-% camera view space (world space) to projector view space.
+% Redistribution and use in source and binary forms, with or without
+% modification, are permitted provided that the following conditions are met:
 
-% So a point in projector space Pprjview can be expressed in camera view
-% (world) space as: Pworld = Pcamview = R'*Pprjview + (-R'*T)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
 
-%% Notations
-% gt:
-%     ground truth
-% wb:
-%     white board, also called calibration board where checkerboard is
-%     attached to the center of it.
-% cb: checkerboard
-% gd:
-%     grid, the grid that is projected by the projector,
-%     e.g, gdPtsCamImg: is grid points in camera image space
+% If you publish results obtained using this software, please cite our paper.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function stereoParams = stereoCalibrate(modelPtsCell, camImgPtsCell, prjImgPtsCell, camImgSize, prjImgSize, objective)
-
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
 
 %% 1. Calibrate camera and projector intrinsics and R, T from model points
 % Maximum count for termination criteria
@@ -301,8 +294,6 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Construct Jacobian pattern for faster bundle adjustment
-% Author: Bingyao Huang <hby001@gmail.com>
-% Date: 10/01/2017
 function J = jacobianPattern(x, modelPts)
 
 %% Descriptions
