@@ -28,6 +28,12 @@ function [imBWGrid, imColorGridMasked, imBWBoardMask] = segColorGrid(whiteLight,
 imLight = imread(whiteLight);
 imColorGrid = imread(colorGrid);
 
+% find seg mask
+backSlashidx = strfind(whiteLight, '\');
+whiteLightFileName = whiteLight(backSlashidx(end)+1:end);
+setNumIdx = regexp(whiteLightFileName,'\d');
+bwBoardName = fullfile(whiteLight(1:backSlashidx(end)), ['bwBoard', whiteLightFileName(setNumIdx),'.png']);
+
 if(verbose)
     figure('Name', 'segColorGrid', 'units','normalized','outerposition',[0 0 1 1]);
 end
@@ -45,52 +51,60 @@ im2 = rgb2hsv(imLight);
 s = mean(im1(:,:,3)) / mean(im2(:,:,3));
 s = min(s, 1);
 imGrid = imColorGrid-s*imLight;
-imGrayGrid = rgb2gray(imColorGrid-s*imLight);
-imGridROI = bwconvhull(bwareafilt(imGrayGrid > mean(imGrayGrid(:)), 1));
-imLightMasked = ImgProc.maskImage(imLight, imGridROI);
-imGrayMasked = rgb2gray(imLightMasked); % normalized gray
 
-imBWBoard = false(size(imGrayMasked));
-
-% get bounding box corners of the checkerboard
-maxXY = max(camCorners);
-minXY = min(camCorners);
-
-permsX = perms([minXY(:,1), maxXY(:,1)]);
-permsY = perms([minXY(:,2), maxXY(:,2)]);
-
-% check the best flood fill results when using the 4 corners
-winSize = 5;
-
-for i = 1:length(permsX)
-    for j = 1:length(permsY)
-        % init seed set to corner
-        x = round(permsX(i));
-        y = round(permsY(j));
-        
-        % find the brightest pixel index in a 5x5 local roi
-        imRoi = imgaussfilt(imGrayMasked(y-winSize:y+winSize,x-winSize:x+winSize));
-        [maxVal, maxIdx] = max(imRoi(:));
-        
-        % convert back to global row and col
-        [row, col] = ind2sub(size(imRoi), maxIdx);
-        col = col + x - winSize - 1;
-        row = row + y - winSize - 1;
-        
-        % Flood fill using geodesic distance
-        imCurSeg = ImgProc.segFloodFill(imLightMasked, row, col);
-        imBWBoard = imBWBoard | imCurSeg;
-        
-        if(verbose)
-            %             fs(imCurSeg);hold on; plot(col,row,'ro');
+%%
+if(exist(bwBoardName,'file'))
+    imBWBoard = imread(bwBoardName);
+else
+    imGrayGrid = rgb2gray(imColorGrid-s*imLight);
+    imGridROI = bwconvhull(bwareafilt(imGrayGrid > mean(imGrayGrid(:)), 1));
+    imLightMasked = ImgProc.maskImage(imLight, imGridROI);
+    imGrayMasked = rgb2gray(imLightMasked); % normalized gray
+    
+    imBWBoard = false(size(imGrayMasked));
+    
+    % get bounding box corners of the checkerboard
+    maxXY = max(camCorners);
+    minXY = min(camCorners);
+    
+    permsX = perms([minXY(:,1), maxXY(:,1)]);
+    permsY = perms([minXY(:,2), maxXY(:,2)]);
+    
+    % check the best flood fill results when using the 4 corners
+    winSize = 5;
+    
+    for i = 1:length(permsX)
+        for j = 1:length(permsY)
+            % init seed set to corner
+            x = round(permsX(i));
+            y = round(permsY(j));
+            
+            % find the brightest pixel index in a 5x5 local roi
+            imRoi = imgaussfilt(imGrayMasked(y-winSize:y+winSize,x-winSize:x+winSize));
+            [maxVal, maxIdx] = max(imRoi(:));
+            
+            % convert back to global row and col
+            [row, col] = ind2sub(size(imRoi), maxIdx);
+            col = col + x - winSize - 1;
+            row = row + y - winSize - 1;
+            
+            % Flood fill using geodesic distance
+            imCurSeg = ImgProc.segFloodFill(imLightMasked, row, col);
+            imBWBoard = imBWBoard | imCurSeg;
+            
+            if(verbose)
+                %             fs(imCurSeg);hold on; plot(col,row,'ro');
+            end
         end
     end
+    
+    % imBWBoard = bwconvhull(imBWBoard);
+    
+    % imWeight = graydiffweight(imLabNorm, col, row, 'GrayDifferenceCutoff', tol);
+    % imBWBoard = imsegfmm(imWeight, col, row, 0.01);
 end
 
-% imBWBoard = bwconvhull(imBWBoard);
 
-% imWeight = graydiffweight(imLabNorm, col, row, 'GrayDifferenceCutoff', tol);
-% imBWBoard = imsegfmm(imWeight, col, row, 0.01);
 
 if(verbose)
     subplot(2,2,1);
@@ -103,6 +117,7 @@ end
 
 % find checkerboard area
 imBWCb = ~imBWBoard;
+winSize = 5;
 
 seeds = [];
 for i = 1:length(camCorners)
