@@ -24,8 +24,10 @@ function Nodes = decodeDebruijn(Nodes, prjW, prjH)
 % SOFTWARE.
 
 %%
+
+aspect = prjW / prjH;
 imgW = 1920;
-imgH = 1080;
+imgH = floor(imgW / aspect);
 
 if(prjW > imgW)
     imgW = prjW;
