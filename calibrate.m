@@ -103,7 +103,7 @@ Xc = []; % node points in camera image space
 Xp = []; % node points in projector image space
 
 % 1. Undistorted node points in camera image space
-xcUndistort = cell(1, calibInfo.numSets);
+XcUndistort = cell(1, calibInfo.numSets);
 
 % 2. Warp Xc to model space to get Xm
 for i = 1:calibInfo.numSets
@@ -119,13 +119,13 @@ for i = 1:calibInfo.numSets
     Xp{i} = nodesCell{i}(:, 3:4);
     
     % undistort grid points in camera image
-    xcUndistort{i} = ImgProc.cvUndistortPoints(Xc{i}, camParams.camK, camParams.camKc);
+    XcUndistort{i} = ImgProc.cvUndistortPoints(Xc{i}, camParams.camK, camParams.camKc);
     
     % transform camera image grid points to white board model space using
     % H, then use calibrated tvecs and rvecs to transform grid points from
     % model space to world space.
     % NOTE: the cb corners have to be undistorted
-    curXm = ImgProc.applyHomography(xcUndistort{i}, inv(Hmc));
+    curXm = ImgProc.applyHomography(XcUndistort{i}, inv(Hmc));
     curXm = [curXm, zeros(length(curXm), 1)];
     Xm{i} = curXm;
 end
