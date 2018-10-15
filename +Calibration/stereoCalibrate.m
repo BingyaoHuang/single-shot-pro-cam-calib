@@ -249,9 +249,9 @@ modelPts = reshape(paramIn(pos:end), 3, [])';
 % compute reprojection residual
 res = [];
 prevPos = 1;
-gdPtsCamView = [];
-gdPtsPrjView = [];
-lambdaZ = [];
+% gdPtsCamView = [];
+% gdPtsPrjView = [];
+% lambdaZ = [];
 for i=1:numSets
     % current plane's pts3d
     nPts = length(initModelPts{i});
