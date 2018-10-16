@@ -46,14 +46,19 @@ verbose = app.calibOption.verbose;
 % calibration, you can set the two flags to true to speed up recalibration.
 % But you must set them to false if you change sets, camera, projector or
 % checkerobard settings in calib-info.yml.
-useExistingCamCorners = app.calibOption.useExistingCamCorners;
+useExistingCamCorners = 0;
 useExistingPrjCorners = 0;
 
 format short
 
+% start waitbar
+msg = 'Extracting checkerboard corners from camera image...';
+waitBarHandle = waitbar(0, msg, 'Name', 'Calibrating pro-cam...');
+set(findall(waitBarHandle),'Units', 'normalized');
+waitBarHandle.Position(3) = 0.3;
 %% Step 1: Get checkerboard corners from camera image
 if (~useExistingCamCorners)
-    disp('Extracting checkerboard corners from camera image...');
+    disp(msg);
     
     % 1. Get the checkerboard points for the selected calibInfo.sets from camera image
     [camCorners, usedImIdx] = Calibration.getCameraCorners(calibInfo);
@@ -72,7 +77,9 @@ else
 end
 
 %% Step 2: Calibrate camera, (skip 1 if using existing camera corners)
-disp('Calibrating camera using checkerboard corners...');
+msg = 'Calibrating camera using checkerboard corners...';
+waitbar(0.1, waitBarHandle, msg);
+disp(msg);
 
 % 1. Generate world corners
 modelCornersCell = Calibration.generateModelCorners(calibInfo);
@@ -87,28 +94,36 @@ camParams = Calibration.calibrateInitGuess(modelCornersCell, camCornersCell, cal
 
 if (~useExistingPrjCorners)
     % 1. Get SL nodes from specified image sets
-    disp('Extracting and saving grid nodes and warped projector corners...');
+    msg = 'Extracting and saving grid nodes and warped projector corners...';
+    waitbar(0.2, waitBarHandle, msg);
+    disp(msg);
+    
     [nodesCell, ~] = Calibration.getNodesAndPrjCorners(calibInfo, camParams, camCorners, verbose);
     
     % 2. Save projector points and node pairs
     cv.FileStorage(fullfile(calibInfo.path, 'nodePairs.yml'), nodesCell);
 else
-    disp('Reading existing node coordinates...');
+    msg = 'Reading existing node coordinates...';
+    waitbar(0.2, waitBarHandle, msg);
+    disp(msg);
     nodesCell = cv.FileStorage(fullfile(calibInfo.path, 'nodePairs.yml')).nodePairs;
 end
 
 %% Step 4. Warp node points (Xc) in camera image to model space (Xm)
-disp('Warpping nodes to model space (Xc to Xm) for proposed method...');
+msg = 'Warpping nodes to model space (Xc to Xm) for proposed method...';
+waitbar(0.3, waitBarHandle, msg);
+disp(msg);
+
 % refer to paper to understand Xm, Xc, Xp
 Xm = []; % node points in model space
 Xc = []; % node points in camera image space
 Xp = []; % node points in projector image space
 
 % 1. Undistorted node points in camera image space
-xcUndistort = cell(1, calibInfo.numSets);
+XcUndistort = cell(1, calibInfo.numSets);
 
 % 2. Warp Xc to model space to get Xm
-for i = 1:calibInfo.numSets
+for i = 1:calibInfo.numSets    
     % according to Zhang's method the homography Hmc is:
     % H = lambda*K*[r1, r2, t], where r1, r2 are 1st and 2nd column of R
     R = cv.Rodrigues(camParams.rVecs{i});
@@ -121,19 +136,24 @@ for i = 1:calibInfo.numSets
     Xp{i} = nodesCell{i}(:, 3:4);
     
     % undistort grid points in camera image
-    xcUndistort{i} = ImgProc.cvUndistortPoints(Xc{i}, camParams.camK, camParams.camKc);
+    % TODO: check undistortion error by fitting line with checkerboard if not
+    % good, do not undistort.
+    XcUndistort{i} = ImgProc.cvUndistortPoints(Xc{i}, camParams.camK, camParams.camKc);
+%     XcUndistort{i} = Xc{i}; 
     
     % transform camera image grid points to white board model space using
     % H, then use calibrated tvecs and rvecs to transform grid points from
     % model space to world space.
     % NOTE: the cb corners have to be undistorted
-    curXm = ImgProc.applyHomography(xcUndistort{i}, inv(Hmc));
+    curXm = ImgProc.applyHomography(XcUndistort{i}, inv(Hmc));
     curXm = [curXm, zeros(length(curXm), 1)];
     Xm{i} = curXm;
 end
 
 %% Step 5. Calibrate camera and projector using the proposed method
-disp('[Proposed] Performing camera-projector calibration using BA...');
+msg = 'Performing camera-projector calibration using bundle adjustment (BA)...';
+waitbar(0.9, waitBarHandle, msg);
+disp(msg);
 
 % 1. Use 'BA' option to specify bundle adjustment on Xm
 stereoParams = Calibration.stereoCalibrate(Xm, Xc, Xp, calibInfo.camImgSize, calibInfo.prjImgSize, 'BA');
@@ -147,12 +167,18 @@ stereoParams = Calibration.calcReprojectionError(stereoParams, stereoParams.mode
 stereoParams
 
 % debug
-if (verbose)
-    Reconstruct.visualizePts3d(cell2mat(stereoParams.worldPts'), stereoParams.R, stereoParams.T, 'Proposed calibration: Xm ');
-end
+Reconstruct.visualizePts3d(cell2mat(stereoParams.worldPts'), stereoParams.R, stereoParams.T, 'Pro-cam extrinsics and reconstructed SL nodes');
 
 %% Step 6. Save calibration data
-calibFileName = fullfile(calibInfo.resultDir, ['proposed' , '.yml']);
-cv.FileStorage(calibFileName, stereoParams);
-disp(['Calibration data saved to ', calibFileName]);
+calibFileFullName = fullfile(calibInfo.resultDir, ['calibration' , '.yml']);
+cv.FileStorage(calibFileFullName, stereoParams);
+
+waitbar(1.0, waitBarHandle, 'Calibration data saved');
+fprintf('Calibration data saved to %s\n', calibFileFullName);
+
+%% update app's text area
+app.updateCalibrationResultText(calibFileFullName, stereoParams);
+
+close(waitBarHandle);
+uiconfirm(app.ProCamCalibUIFigure,['Calibration data saved to ', calibFileFullName], 'Calibration complete!', 'Options', {'OK'},'icon','success');
 end
