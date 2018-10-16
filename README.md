@@ -38,7 +38,7 @@ To apply the proposed method to your data, please follow these steps:
 5. Capture an image of the white board with the camera and save it as `lightGrid[i].png`, where `i` is the ith position, e.g.,  `lightGrid01.png` is the first position.
 6. Display the pattern image in full screen mode on your projector and capture an image. and save it as `colorGrid[i].png`, where `i` is the ith position, e.g.,  `colorGrid01.png` is the first position. Make sure the white board is not moved between steps 5 and 6. **Note: please place the white board so that the superimposed color grid cell is at least 5 pixels wide in camera's view.**
 7. Change the position and orientation of the white board and repeat steps 5 to 7 **at least three times**.
-8. Once sufficient positions are captured, create a file named `calib-info.yml` and type your camera-projector pair configurations, an example file is given as follows:
+8. Once sufficient positions (at least three, but highly encourage to take more)  are captured, create a file named `calib-info.yml` and type your camera-projector pair configurations, an example file is given as follows:
     ```yaml
     %YAML:1.0
     # Camera image width and height
@@ -107,7 +107,7 @@ The project folder is organized as follows:
 Please cite these papers in your publications if it helps your research:
 
     @inproceedings{huang2018a,
-        author = "Huang, Bingyao and Ozdemir, Samed and Wei, Ying and Liao, Chunyuan and Ling, Haibin",
+        author = "Huang, Bingyao and Ozdemir, Samed and Tang, Ying and Liao, Chunyuan and Ling, Haibin",
         title = "A Single-shot-per-pose Camera-Projector Calibration System For Imperfect Planar Targets",
         year = "2018",
         booktitle = "Adjunct Proceedings of the IEEE International Symposium for Mixed and Augmented Reality 2018 (To appear)"
