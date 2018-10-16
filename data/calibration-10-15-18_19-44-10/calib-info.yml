@@ -1,0 +1,7 @@
+%YAML:1.0
+camW: 800
+camH: 600
+prjW: 800
+prjH: 600
+boardSize: [7, 10]
+sets: [1, 2, 3, 4]
