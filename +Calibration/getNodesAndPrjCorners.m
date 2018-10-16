@@ -46,7 +46,7 @@ if(verbose) % debug
     end
 else % non-debug
     parfor i = 1:size(prjCorners,3)
-       disp(['Extracting projector corners for image ', num2str(i)]);
+        disp(['Extracting projector corners for image ', num2str(i)]);
         [prjCorners(:,:,i), nodePairs{i}] = findMatchAndWarp(imLightNames{i}, ...
             imColorNames{i}, imPatternName,camCorners(:,:,i), camParams, calibInfo, verbose);
         disp(['Done image ' num2str(i)]);
@@ -67,9 +67,13 @@ camKc = camParams.camKc;
 % extract matched color grid Nodes' coords in camera and projector images
 [camNodes, prjNodes] = ImgProc.getMatchedNotes(imLightName, imColorName, camCorners, prjW, prjH, verbose);
 
-%% Warp camera corners to projector image
-% undistort
-camNodesUndistort = ImgProc.cvUndistortPoints(camNodes, camK, camKc);
+%% Remove SL node outliers
+% most cameras do not need undistort at this stage (except fisheye). If the
+% init cam calibration is not accurate, the undistortion will mess up the
+% correctly matched SL nodes, thus most of them are removed as outliers.
+
+% camNodesUndistort = ImgProc.cvUndistortPoints(camNodes, camK, camKc);
+camNodesUndistort = camNodes;
 
 % Get rid of outliers using homography
 [Hcp, inliers] = cv.findHomography(camNodesUndistort, prjNodes, ...
@@ -87,14 +91,13 @@ end
 % node points are used by degraded proposed (w/o BA) and proposed (with BA)
 nodePairs = [camNodes(inliers, :), prjNodes(inliers, :)];
 
-% prjCorners are used by Global Homography method only
-prjCorners = ImgProc.applyHomography(camCorners, Hcp);
-
 % verbose. visualize inlier matches
 if(verbose)
-    figure('Name', 'getNodesAndPrjCorners');    
+    figure('Name', 'getNodesAndPrjCorners');
     imPattern = imread(imPatternName);
-    imColorGrid = cv.undistort(imread(imColorName), camK, camKc);
+    % most cameras do not need undistort at this stage (except fisheye)
+    %     imColorGrid = cv.undistort(imread(imColorName), camK, camKc);
+    imColorGrid = imread(imColorName);
     
     subplot(2,1,1);
     showMatchedFeatures(imPattern, imColorGrid, prjNodes, camNodes, 'montage');
@@ -115,9 +118,12 @@ if(verbose)
     imColorGridPrj = cv.warpPerspective(imColorGrid, Hcp, 'DSize',[prjW,prjH]);
     camPtsWarp = ImgProc.applyHomography(camPts,Hcp);
     
-    figure('Name', 'getNodesAndPrjCorners');    
-    showMatchedFeatures(imPattern, imColorGridPrj, prjPts, camPtsWarp, 'falsecolor');    
-    title(['Inlier matches of projector image and warped camera image of' string(imColorName(end-5:end-4))]);    
+    figure('Name', 'getNodesAndPrjCorners');
+    showMatchedFeatures(imPattern, imColorGridPrj, prjPts, camPtsWarp, 'falsecolor');
+    title(['Inlier matches of projector image and warped camera image of' string(imColorName(end-5:end-4))]);
 end
 
-
+%% [Global Homography] Warp camera corners to projector image. prjCorners are
+% used by Global Homography method only, the proposed method uses SL points
+% instead for calibration.
+prjCorners = ImgProc.applyHomography(camCorners, Hcp);
