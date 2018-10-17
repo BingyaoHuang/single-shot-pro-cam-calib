@@ -32,11 +32,12 @@ For more info please refer to our [paper][1].
 
 
 1. Print a checkerboard pattern and glue it to a white board. Make sure the checkerboard pattern is at the center of the white board and its width/height is around **1/3** of the white board's width/height.
-2. Place the white board (with checkerboard glued to it) in both camera and projector's FOV.
+2. Place the white board (with checkerboard glued to it) in front of camera and projector.
 3. Run `calibApp.mlapp` to start the GUI.
-4. Select the right projector and camera in the GUI and adjust the parameters using camera preview. Then start capture the images as shown in the gif below. The images will be saved as `colorGrid[i].png`, where `i` is the ith position, e.g.,  `colorGrid01.png` is the first position. Make sure the white board is not moved between steps 5 and 6. **Note: please place the white board so that the superimposed color grid cell is at least 5 pixels wide in camera's view.**
-5. Change the position and orientation of the white board and repeat steps 5 to 7 **at least three times**.
-6. Once sufficient positions (at least three, but highly encourage to take more) are captured, click **Calibration** tab to start calibration. 
+4. Select the right projector and camera in the GUI click `PreviewCam` and `PreviewPrj` button to start camera and projector preview, make sure the white board is in camera's and projector's FOV, i.e, the color grid covers the entire white board and the camera has a full view of the white board.
+5. Adjust the projector color grid brightness using the `Projector Brightness` slider and camera parameters using the sliders in `Camera Control` panel. Adjust camera `Exposure` to ensure the color grid is not underexposed or overexposed.
+6. Start to capture the images as shown in the gif below. The checkerboard and color grid images will be saved as `lightGrid[i].png` and `colorGrid[i].png`, where `i` is the ith position, e.g.,  `colorGrid01.png` is the color grid image at the 1st position. Although **at least three poses** are sufficient we highly encourage to take more, refer to [Bouguet][7] for a good example.
+7. Once sufficient images are captured, click `Calibration` tab on top and select the sets you want to use for calibration, then type the printed checkerboard square size in the text box below `Calibration` button, finally click `Calibrate` button. 
 
 ![calib](doc/calib.gif)
 
@@ -47,8 +48,8 @@ For more info please refer to our [paper][1].
     |---------------------|---------|-----------|---------|
     |[Moreno & Taubin][3] | 0.12356 | 1.5949    | 1.1311  |
     | Global homography   | 0.12356 | 5.7868    | 4.0928  |
-    | Proposed w/o BA     | 0.41692 | 0.71052   | 0.58252 |
-    | Proposed            | 0.34976 | 0.63517   | 0.51272 |
+    | Proposed w/o BA     | 0.41692 | 0.7105    | 0.5825  |
+    | Proposed            | 0.34976 | 0.6352    | 0.5127  |
 
 * 3D alignment error:
     
@@ -103,5 +104,5 @@ This software is freely available for non-profit non-commercial use, and may be 
 [4]: https://www.mathworks.com/help/vision/ref/detectcheckerboardpoints.html
 [5]: https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/ismar18]
 [6]: https://youtu.be/fnrVDOhcu7I
-
+[7]: http://www.vision.caltech.edu/bouguetj/calib_doc/htmls/calib_example/index.html
 
