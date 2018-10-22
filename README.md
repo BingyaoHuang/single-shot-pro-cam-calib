@@ -102,7 +102,7 @@ This software is freely available for non-profit non-commercial use, and may be 
 [2]: https://github.com/kyamagu/mexopencv
 [3]: http://mesh.brown.edu/calibration/
 [4]: https://www.mathworks.com/help/vision/ref/detectcheckerboardpoints.html
-[5]: https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/ismar18]
+[5]: https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/ismar18
 [6]: https://youtu.be/fnrVDOhcu7I
 [7]: http://www.vision.caltech.edu/bouguetj/calib_doc/htmls/calib_example/index.html
 
