@@ -65,7 +65,7 @@ camK = camParams.camK;
 camKc = camParams.camKc;
 
 % extract matched color grid Nodes' coords in camera and projector images
-[camNodes, prjNodes] = ImgProc.getMatchedNotes(imLightName, imColorName, camCorners, prjW, prjH, verbose);
+[camNodes, prjNodes] = ImgProc.getMatchedNodes(imLightName, imColorName, camCorners, prjW, prjH, verbose);
 
 %% Remove SL node outliers
 % most cameras do not need undistort at this stage (except fisheye). If the

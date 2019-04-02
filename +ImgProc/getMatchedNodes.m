@@ -1,4 +1,4 @@
-function [camPoints, prjPoints] = getMatchedNotes(whiteLight, colorGrid, camCorners, prjW, prjH, verbose)
+function [camPoints, prjPoints, Nodes, Edges] = getMatchedNodes(whiteLight, colorGrid, camCorners, prjW, prjH, verbose)
 %% Get matched Nodes on both camera and projector image.
 % Tthe outputs are matched camera and projector 2D point pairs.
 
@@ -213,6 +213,7 @@ camPoints = vertcat(Nodes(validNodes).Centroid);
 prjPoints = [[Nodes(validNodes).activeCol]', [Nodes(validNodes).activeRow]'];
 end
 
+% convert skeleton image to node, edge endpoints images
 function [imEdges, imNodes, imEndPoints, imNeighbor] = extractStructs(imSkele)
 imNeighbor = imfilter(double(imSkele), [1, 1, 1; 1, 0, 1; 1, 1, 1]);
 imNeighbor = imNeighbor .* imSkele;
@@ -221,3 +222,5 @@ imEdges = imNeighbor == 2;
 imEndPoints = imNeighbor == 1;
 imNodes = logical(imSkele - imEdges - imEndPoints);
 end
+
+% also find edge's 3d coord

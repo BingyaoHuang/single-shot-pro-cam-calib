@@ -1,6 +1,6 @@
 function [imBWGrid, imColorGridMasked, imBWBoardMask] = segColorGrid(whiteLight, colorGrid, camCorners, verbose)
 %% Extracts the color grid on white board.
-% See also: ImgProc.getMatchedNotes
+% See also: ImgProc.getMatchedNodes
 
 %% License
 % ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY

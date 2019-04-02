@@ -1,6 +1,6 @@
 function [Edges, Nodes] = skeleToStruct(imNode, imEdge)
 %% Extract Edges and Nodes structures from Node and Edge images
-% See also: ImgProc.getMatchedNotes
+% See also: ImgProc.getMatchedNodes
 
 %% License
 % ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
