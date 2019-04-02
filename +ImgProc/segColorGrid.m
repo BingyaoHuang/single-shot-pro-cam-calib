@@ -34,8 +34,10 @@ whiteLightFileName = whiteLight(backSlashidx(end)+1:end);
 setNumIdx = regexp(whiteLightFileName,'\d');
 bwBoardName = fullfile(whiteLight(1:backSlashidx(end)), ['bwBoard', whiteLightFileName(setNumIdx),'.png']);
 
-if(verbose)
-    figure('Name', 'segColorGrid', 'units','normalized','outerposition',[0 0 1 1]);
+if(~isempty(camCorners))
+    if(verbose)
+        figure('Name', 'segColorGrid', 'units','normalized','outerposition',[0 0 1 1]);
+    end
 end
 
 %% Flood fill using the 1st checkerboard corner
@@ -55,7 +57,7 @@ imGrid = imColorGrid-s*imLight;
 %%
 if(exist(bwBoardName,'file'))
     imBWBoard = imread(bwBoardName);
-else
+elseif(~isempty(camCorners))
     imGrayGrid = rgb2gray(imColorGrid-s*imLight);
     imGridROI = bwconvhull(bwareafilt(imGrayGrid > mean(imGrayGrid(:)), 1));
     imLightMasked = ImgProc.maskImage(imLight, imGridROI);
@@ -97,16 +99,15 @@ else
             end
         end
     end
-    
+else
+    imBWBoard = true(size(imLight,1),size(imLight,2));
     % imBWBoard = bwconvhull(imBWBoard);
     
     % imWeight = graydiffweight(imLabNorm, col, row, 'GrayDifferenceCutoff', tol);
     % imBWBoard = imsegfmm(imWeight, col, row, 0.01);
 end
 
-
-
-if(verbose)
+if(verbose && ~isempty(camCorners))
     subplot(2,2,1);
     imshow(imBWBoard);
     title('Flood fill white board');
@@ -114,30 +115,34 @@ if(verbose)
 end
 
 %% Crop checkerboard area
-
-% find checkerboard area
-imBWCb = ~imBWBoard;
-winSize = 5;
-
-seeds = [];
-for i = 1:length(camCorners)
-    x = round(camCorners(i,1));
-    y = round(camCorners(i,2));
-    imBWCb(y-winSize:y+winSize,x-winSize:x+winSize) = 1;
+if(~isempty(camCorners))
+    % find checkerboard area
+    imBWCb = ~imBWBoard;
+    winSize = 5;
     
-    % seeds for bwselect
-    seeds = [seeds; [x,y]];
+    seeds = [];
+    for i = 1:length(camCorners)
+        x = round(camCorners(i,1));
+        y = round(camCorners(i,2));
+        imBWCb(y-winSize:y+winSize,x-winSize:x+winSize) = 1;
+        
+        % seeds for bwselect
+        seeds = [seeds; [x,y]];
+    end
+    
+    % select the checkerboard area using all corners as seeds
+    imBWCb = bwselect(imBWCb, seeds(:,1), seeds(:,2), 8);
+    
+    imBWCb = bwconvhull(imBWCb);
+    % imBWCb( round(minXY(:,2)):round(maxXY(:,2)), round(minXY(:,1)):round(maxXY(:,1))) = 1;
+    imBWBoardMask = imfill(imBWBoard, 'holes');
+    imBWBoardMask(imBWCb(:)) = 0;
+else
+    imBWCb = ~imBWBoard;
+    imBWBoardMask = imBWBoard;
 end
 
-% select the checkerboard area using all corners as seeds
-imBWCb = bwselect(imBWCb, seeds(:,1), seeds(:,2), 8);
-
-imBWCb = bwconvhull(imBWCb);
-% imBWCb( round(minXY(:,2)):round(maxXY(:,2)), round(minXY(:,1)):round(maxXY(:,1))) = 1;
-imBWBoardMask = imfill(imBWBoard, 'holes');
-imBWBoardMask(imBWCb(:)) = 0;
-
-if(verbose)
+if(verbose && ~isempty(camCorners))
     subplot(2,2,2);
     imshow(imBWBoardMask);
     title('White board without checkerboard area');
@@ -175,16 +180,18 @@ imBWGrid = imclose(imBWGrid, se2);
 imBWCb = imdilate(imBWCb, ones(8, 8));
 imBWGrid(imBWCb(:)) = 0;
 
-if(verbose)
-    subplot(2,2,3);
-    imshow(imColorGridMasked);
-    title('Color grid masked');
-    drawnow
-    
-    subplot(2,2,4);
-    imshow(imBWGrid);
-    title('Color grid binary mask');
-    drawnow
+if(~isempty(camCorners))
+    if(verbose)
+        subplot(2,2,3);
+        imshow(imColorGridMasked);
+        title('Color grid masked');
+        drawnow
+        
+        subplot(2,2,4);
+        imshow(imBWGrid);
+        title('Color grid binary mask');
+        drawnow
+    end
 end
 
 % imColorGridMasked = ImgProc.maskImage(imColorGridMasked, imBWGrid);
