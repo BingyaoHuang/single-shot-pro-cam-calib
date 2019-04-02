@@ -100,7 +100,7 @@ camNodesUndistort = ImgProc.cvUndistortPoints(camNodes, camK, camKc);
 prjNodesUndistort = ImgProc.cvUndistortPoints(prjNodes, prjK, prjKc);
 
 % remove epipolar outliers
-[inlierIdx, d] = Reconstruct.findEpipolarInliers(F, camNodesUndistort, prjNodesUndistort, 1, verbose);
+[inlierIdx, d] = Reconstruct.findEpipolarInliers(F, camNodesUndistort, prjNodesUndistort, app.reconOption.epiThresh, verbose);
 camNodesUndistort = camNodesUndistort(inlierIdx,:);
 prjNodesUndistort = prjNodesUndistort(inlierIdx,:);
 
@@ -241,6 +241,11 @@ end
 % prjEdgesUndistort = ImgProc.cvUndistortPoints(prjEdges, prjK, prjKc);
 camEdgesUndistort = camEdges;
 prjEdgesUndistort = prjEdges;
+
+% remove epipolar outliers
+[inlierIdx, d] = Reconstruct.findEpipolarInliers(F, camEdgesUndistort, prjEdgesUndistort, app.reconOption.epiThresh, verbose);
+camEdgesUndistort = camEdgesUndistort(inlierIdx,:);
+prjEdgesUndistort = prjEdgesUndistort(inlierIdx,:);
 
 % triangulate
 edgePts3d = Reconstruct.triangulatePoints(camK, prjK, R, T, camEdgesUndistort, prjEdgesUndistort);
