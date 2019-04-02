@@ -1,3 +1,4 @@
+function calibrateGUI(app)
 %% A single-shot camera and projector calibration system for imperfect planar targets
 % Calibrates the camera and projector using single-shot
 % colored structured light.
@@ -22,9 +23,6 @@
 % LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 % OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 % SOFTWARE.
-
-%% calibration function for GUI
-function calibrateGUI(app)
 
 %% Options
 dataRoot = app.dataRoot;
