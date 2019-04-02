@@ -164,7 +164,8 @@ stereoParams.dataName = calibInfo.dataName;
 stereoParams = Calibration.calcReprojectionError(stereoParams, stereoParams.modelPts, stereoParams.camImgPts, stereoParams.prjImgPts);
 
 %3. Display calibration results
-stereoParams
+app.stereoParams = stereoParams;
+disp(app.stereoParams)
 
 % debug
 Reconstruct.visualizePts3d(cell2mat(stereoParams.worldPts'), stereoParams.R, stereoParams.T, 'Pro-cam extrinsics and reconstructed SL nodes');
