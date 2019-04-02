@@ -133,22 +133,20 @@ stereoParams.prjKc = prjKc;
 stereoParams.R = R;
 stereoParams.T = T;
 
-% essential and fundamental matrix
-prjR = R';
-prjT = (-R'*T)';
+% The computed fundamental matrix below transforms a point in camera imgae
+% to an epipolar line in projector image. Rotate F if you want to transform
+% from projector to camera...
 
 % translation vector in matrix cross product form
-tx = [0, -prjT(3), prjT(2);
-     prjT(3), 0 , -prjT(1);
-    -prjT(2), prjT(1) , 0 ];
+tx = [0, -T(3), T(2);
+     T(3), 0 , -T(1);
+    -T(2), T(1) , 0 ];
 
 % E = [t] × R
-stereoParams.E = (tx * prjR)';
+stereoParams.E = tx * R;
 
 % F = inv(K2')*E*inv(K1);
-% F = inv(camK')*E*inv(prjK);
-% spOut.F = camK'\spOut.E/prjK; % faster in matlab
-stereoParams.F = prjK'\stereoParams.E/camK; % faster in matlab
+stereoParams.F = inv(prjK')*stereoParams.E*inv(camK);
 
 % 5.2 output cam-model extrinsics and optimized grid points world and model
 % coords
