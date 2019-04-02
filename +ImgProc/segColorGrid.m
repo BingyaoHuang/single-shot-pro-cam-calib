@@ -32,12 +32,14 @@ imColorGrid = imread(colorGrid);
 backSlashidx = strfind(whiteLight, '\');
 whiteLightFileName = whiteLight(backSlashidx(end)+1:end);
 setNumIdx = regexp(whiteLightFileName,'\d');
-bwBoardName = fullfile(whiteLight(1:backSlashidx(end)), ['bwBoard', whiteLightFileName(setNumIdx),'.png']);
 
 if(~isempty(camCorners))
+    bwBoardName = fullfile(whiteLight(1:backSlashidx(end)), ['bwBoard', whiteLightFileName(setNumIdx),'.png']);
     if(verbose)
         figure('Name', 'segColorGrid', 'units','normalized','outerposition',[0 0 1 1]);
     end
+else
+    bwBoardName = fullfile(whiteLight(1:backSlashidx(end)), ['objectROI', whiteLightFileName(setNumIdx),'.png']);
 end
 
 %% Flood fill using the 1st checkerboard corner
