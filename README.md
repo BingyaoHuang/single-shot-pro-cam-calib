@@ -13,7 +13,8 @@ For more info please refer to our [paper][1].
 
 **To reproduce paper results please refer to [ismar18][5] branch.**
 
-**(Updated 10/16/2018: GUI released! We keep improving the calibration algorithm and now provide the users with a software written with MATLAB2018b app designer.)**
+**(Updated 04/03/2019: 3D reconstruction feature released. In the `Calibration` tab load a calibration yml file, then select a set in the images list and click `Reconstruct`).**
+
 
 ![calib](doc/app.png)
 
@@ -34,10 +35,11 @@ For more info please refer to our [paper][1].
 1. Print a checkerboard pattern and glue it to a white board. Make sure the checkerboard pattern is at the center of the white board and its width/height is around **1/3** of the white board's width/height.
 2. Place the white board (with checkerboard glued to it) in front of camera and projector.
 3. Run `calibApp.mlapp` to start the GUI.
-4. Select the right projector and camera in the GUI click `PreviewCam` and `PreviewPrj` button to start camera and projector preview, make sure the white board is in camera's and projector's FOV, i.e, the color grid covers the entire white board and the camera has a full view of the white board.
-5. Adjust the projector color grid brightness using the `Projector Brightness` slider and camera parameters using the sliders in `Camera Control` panel. Adjust camera `Exposure` to ensure the color grid is not underexposed or overexposed.
-6. Start to capture the images as shown in the gif below. The checkerboard and color grid images will be saved as `lightGrid[i].png` and `colorGrid[i].png`, where `i` is the ith position, e.g.,  `colorGrid01.png` is the color grid image at the 1st position. Although **at least three poses** are sufficient we highly encourage to take more, refer to [Bouguet][7] for a good example.
-7. Once sufficient images are captured, click `Calibration` tab on top and select the sets you want to use for calibration, then type the printed checkerboard square size in the text box below `Calibrate` button. Finally click `Calibrate` button.
+4. In the GUI, select the projector screen in the top-left `Projector Control` panel dropdown, then click `Preview` on the right of the dropdown to preview the projected structured light pattern.
+5. Then select the camera in the top-right `Camera Control` panel, click `Preview` button to start camera review, make sure the white board is in camera's and projector's FOV, i.e, the color grid covers the entire white board and the camera has a full view of the white board.
+6. Adjust the projector color grid brightness using the `Projector Brightness` slider and camera parameters using the sliders in `Camera Control` panel. Make sure the color grid is not underexposed or overexposed.
+7. Start to capture the images as shown in the gif below. The checkerboard and color grid images will be saved as `lightGrid[i].png` and `colorGrid[i].png`, where `i` is the ith position, e.g.,  `colorGrid01.png` is the color grid image at the 1st position. Although **at least three poses** are sufficient we highly encourage to take more, refer to [Bouguet][7] for a good example.
+8. Once sufficient images are captured, click `Calibration` tab on top and select the sets you want to use for calibration, then type the printed checkerboard square size in the text box below `Calibrate` button. Finally click `Calibrate` button.
 
 ![calib](doc/calib.gif)
 
@@ -53,7 +55,7 @@ For more info please refer to our [paper][1].
 
 * 3D alignment error:
     
-    After we calibrate the camera-projector pair, we reconstruct a point cloud using [2D structured light point pairs](data/calibration-11-13-17/MT/Set10.yml) and [calibration data](data/calibration-11-13-17/results). To calculate reconstruction accuracy, we also capture the [ground truth point cloud](data/calibration-11-13-17/recon-10.ply) using an Intel RealSense F200 RGBD camera. The point cloud 3D alignment error (Euclidean distance) between the reconstructed point cloud and the ground truth point cloud are given by:
+    After we calibrate the camera-projector pair, we reconstruct a point cloud using [2D structured light point pairs](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/ismar18/data/calibration-11-13-17/MT/Set10.yml) and [calibration data](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/ismar18/data/calibration-11-13-17/results). To calculate reconstruction accuracy, we also capture the [ground truth point cloud](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/ismar18/data/calibration-11-13-17/recon-10.ply) using an Intel RealSense F200 RGBD camera. The point cloud 3D alignment error (Euclidean distance) between the reconstructed point cloud and the ground truth point cloud are given by:
 
     | Method              | Min      | Max    | Mean   | Median | Std.   |
     |---------------------|----------|--------|--------|--------|--------|
@@ -70,18 +72,17 @@ For more info please refer to our [paper][1].
 ## Folder Structure
 The project folder is organized as follows:
 
-    ├─+Calibration                  calibration package directory
-    ├─+ImgProc                      image processing package directory
-    ├─+Reconstruct                  3d reconstruction package directory
-    ├─data                          directory for data
-    │  ├─calibration-10-15-18       directory for real data, contains checkerboard/structured light images and RealSense reconstructed ply files.
-    │  │  ├─matlabCorners           extracted checkerboard corners by MATLAB's detectCheckerboardPoints and warped corners by the global homography
-    │  │  ├─MT                      warped checkerboard points and reconstruction point pairs by Moreno & Taubin's software
-    │  │  └─results                 calibration results generated by the four methods mention in the paper with real data
-    │  └─simulation                 directory for simulation (synthetic) data
-    │      └─results                calibration results generated by the four methods mention in the paper with synthetic data
-    ├─doc                           directory for documentation
-    └─README.md                     this file
+    ├─+Calibration                                  calibration package directory
+    ├─+ImgProc                                      image processing package directory
+    ├─+Reconstruct                                  3d reconstruction package directory
+    ├─data                                          directory for data
+    │  ├─calibration-04-01-19_16-02-01              directory for real data, contains checkerboard/structured light images and RealSense reconstructed ply files.
+    │  │  ├─matlabCorners                           extracted checkerboard corners by MATLAB's detectCheckerboardPoints and warped corners by the global homography             
+    │  │  └─results                                 calibration results generated by the four methods mention in the paper with real data
+    │  └─simulation                                 directory for simulation (synthetic) data
+    │      └─results                                calibration results generated by the four methods mention in the paper with synthetic data
+    ├─doc                                           directory for documentation
+    └─README.md                                     this file
     
 ## Citation
 Please cite these papers in your publications if it helps your research:
