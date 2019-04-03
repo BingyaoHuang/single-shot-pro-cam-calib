@@ -9,14 +9,13 @@ Highlights:
 * A bundle adjustment (BA) algorithm is developed to jointly optimize the estimated camera/projector models and feature points in model space. 
 * Unlike many existing methods, to calibrate the system, we apply points from a **Structured Light (SL) pattern** rather than from a checkerboard. This strategy boosts not only the number of feature points but also their spatial distribution, and hence improves calibration robustness.
 
-For more info please refer to our [paper][1].
-
-**To reproduce paper results please refer to [ismar18][5] branch.**
-
-**(Updated 04/03/2019: 3D reconstruction feature released. In the `Calibration` tab load a calibration yml file, then select a set in the images list and click `Reconstruct`).**
+For more info please refer to our [paper][1]. **To reproduce paper results please refer to [ismar18][5] branch.**
 
 
-![calib](doc/app.png)
+**Updated 04/03/2019: 3D reconstruction feature released**. Click `Calibration` tab and load a calibration yml file by clicking `Load Calibration`, then select a set in the `Images` list and click `Reconstruct`.
+
+![calib](doc/reconstruct.png)
+
 
 ## Required Software & Packages
 * MATLAB 2018b
@@ -31,6 +30,7 @@ For more info please refer to our [paper][1].
 ----
 ### Calibrate your own camera-projector pair using our GUI
 
+![calib](doc/capture.png)
 
 1. Print a checkerboard pattern and glue it to a white board. Make sure the checkerboard pattern is at the center of the white board and its width/height is around **1/3** of the white board's width/height.
 2. Place the white board (with checkerboard glued to it) in front of camera and projector.
@@ -42,6 +42,7 @@ For more info please refer to our [paper][1].
 8. Once sufficient images are captured, click `Calibration` tab on top and select the sets you want to use for calibration, then type the printed checkerboard square size in the text box below `Calibrate` button. Finally click `Calibrate` button.
 
 ![calib](doc/calib.gif)
+
 
 ## Example Results
 * Reprojection error:
