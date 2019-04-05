@@ -39,6 +39,9 @@ cornerDir = fullfile(calibInfo.path, 'matlabCorners');
 % debug option, enable for visuals/figures
 verbose = app.calibOption.verbose;
 
+% use matlab parfor to speedup calibration
+useParallel = app.calibOption.useParallel;
+
 % checkerboard corners will be extracted and saved by the script.
 % If no entry in calib-info.yml file has been modified since the last
 % calibration, you can set the two flags to true to speed up recalibration.
@@ -96,7 +99,7 @@ if (~useExistingPrjCorners)
     waitbar(0.2, waitBarHandle, msg);
     disp(msg);
     
-    [nodesCell, ~] = Calibration.getNodesAndPrjCorners(calibInfo, camParams, camCorners, verbose);
+    [nodesCell, ~] = Calibration.getNodesAndPrjCorners(calibInfo, camParams, camCorners, verbose, useParallel);
     
     % 2. Save projector points and node pairs
     cv.FileStorage(fullfile(calibInfo.path, 'nodePairs.yml'), nodesCell);

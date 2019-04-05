@@ -1,4 +1,4 @@
-function [nodePairs, prjCorners] = getNodesAndPrjCorners(calibInfo, camParams, camCorners, verbose)
+function [nodePairs, prjCorners] = getNodesAndPrjCorners(calibInfo, camParams, camCorners, verbose, useParallel)
 %% Extract stuctured light grid node pairs and warped checkerboard corners in projector image (for global homography-based method).
 
 %% License
@@ -23,6 +23,10 @@ function [nodePairs, prjCorners] = getNodesAndPrjCorners(calibInfo, camParams, c
 % SOFTWARE.
 
 %%
+if(nargin < 5)
+    useParallel = verbose;
+end
+
 % parse image names
 imLightNames = ImgProc.getImageNames(calibInfo.path, 'light', calibInfo.sets);
 imColorNames = ImgProc.getImageNames(calibInfo.path, 'color', calibInfo.sets);
@@ -37,7 +41,7 @@ prjCorners = zeros(size(camCorners));
 nodePairs = cell(1, size(camCorners,3));
 
 % for each set
-if(verbose) % debug
+if(~useParallel) % debug
     for i = 1:size(prjCorners,3)
         disp(['Extracting projector corners for image ', num2str(i)]);
         [prjCorners(:,:,i), nodePairs{i}] = findMatchAndWarp(imLightNames{i}, ...
