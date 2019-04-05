@@ -86,15 +86,6 @@ R = stereoParams.R;
 T = stereoParams.T;
 F = stereoParams.F;
 
-% % translation vector in matrix cross product form
-% tx = [0, -T(3), T(2);
-%     T(3), 0 , -T(1);
-%     -T(2), T(1) , 0 ];
-% 
-% % E = [t] × R
-% stereoParams.E = tx * R;
-% F = inv(prjK')*stereoParams.E*inv(camK);
-
 % VERY IMPORTANT!!!!, undistort camera image points first
 camNodesUndistort = ImgProc.cvUndistortPoints(camNodes, camK, camKc);
 prjNodesUndistort = ImgProc.cvUndistortPoints(prjNodes, prjK, prjKc);
@@ -122,7 +113,7 @@ Reconstruct.visualizePts3d(nodePts3d, R, T, 'Node points');
 
 %% triangulate Edges
 msg = 'Triangulating edge coordinates...';
-waitbar(0.9, waitBarHandle, msg);
+waitbar(0.7, waitBarHandle, msg);
 disp(msg);
 
 %% reconstruct edge points using ray-plane intersection (assume no projector distortion, and it does not work well)
@@ -256,8 +247,12 @@ if(verbose)
 end
 
 %% interpolate point cloud
+msg = 'Interpolating point cloud...';
+waitbar(0.9, waitBarHandle, msg);
+disp(msg);
+
 imgName = app.ImageListBox.Value;
-imMask = imread(fullfile(app.dataRoot, app.dataName, ['objectROI', imgName{1}(end-1:end), '.png']));
+imMask = imread(fullfile(dataPath, ['objectROI', imgName{1}(end-1:end), '.png']));
 imROI = ImgProc.maskImage(imread(imLightName), imMask);
 
 % ptCloudInterp = Reconstruct.interpolatePtCloud(camK, camKc, pointCloud(nodePts3d), imROI, imMask, verbose);
@@ -268,9 +263,11 @@ h = pcshow(ptCloudInterp, 'MarkerSize', 150);
 title('Interpolated point cloud')
 
 % save interpolated point cloud
+pcFileName = fullfile(dataPath, ['pointCloud', imgName{1}(end-1:end), '.ply']);
+pcwrite(ptCloudInterp, pcFileName);
 
 %% Finished
 waitbar(1.0, waitBarHandle, 'Reconstruction done!');
 close(waitBarHandle);
-
+uiconfirm(app.ProCamCalibUIFigure,['Point Cloud saved to ', pcFileName], 'Reconstruction complete!', 'Options', {'OK'},'icon','success');
 end

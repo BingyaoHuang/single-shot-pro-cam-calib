@@ -76,12 +76,12 @@ ptCloudOut = pointCloud(pts3dInliers, 'Color', [r,g,b]);
 %% Debug info
 if(verbose)
     %% plot point cloud
-    figure;
-    pcshow(ptCloudOut, 'VerticalAxis', 'y', 'VerticalAxisDir', 'down', 'MarkerSize', 60);
-    title('Interpolated point cloud with color')
-    daspect([1 1 1]);
-    % view(3);
-    axis vis3d tight;
+%     figure;
+%     pcshow(ptCloudOut, 'VerticalAxis', 'y', 'VerticalAxisDir', 'down', 'MarkerSize', 60);
+%     title('Interpolated point cloud with color')
+%     daspect([1 1 1]);
+%     % view(3);
+%     axis vis3d tight;
     
     %% plot mesh (edges only)
     figure;
