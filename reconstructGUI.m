@@ -67,6 +67,9 @@ disp(msg);
 app.ManualSegButton.ButtonPushedFcn(app, [])
 
 % extract matched color grid Nodes' coords in camera and projector images
+msg = 'Matching structured light pattern...';
+waitbar(0.45, waitBarHandle, msg);
+disp(msg);
 [camNodes, prjNodes, Nodes, Edges] = ImgProc.getMatchedNodes(imLightName, imColorName, [], prjW, prjH, verbose);
 
 %% triangulate nodes
