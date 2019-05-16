@@ -23,14 +23,20 @@ function imBW = segFloodFill(im, row, col)
 % SOFTWARE.
 
 %%
+imBW = zeros(size(im));
+tol = 0.05;
+thresh = 500;
 
-% convert RGB to LAB
-imLab = rgb2lab(im);
-
-% normalize
-imLabNorm = sum((imLab - imLab(row,col,:)).^2,3);
-imLabNorm = mat2gray(imLabNorm);
-
-tol = 0.05; % tolerance
-imBW = grayconnected(imLabNorm, row, col, tol);
+% iterate if not enough flood fill was performed to avoid erasing the image
+while(nnz(imBW) < thresh)
+    % convert RGB to LAB
+    imLab = rgb2lab(im);
+    
+    % normalize
+    imLabNorm = sum((imLab - imLab(row,col,:)).^2, 3);
+    imLabNorm = mat2gray(imLabNorm);
+    
+    tol = tol * 1.5; % tolerance
+    imBW = grayconnected(imLabNorm, row, col, tol);
+end
 end
