@@ -60,11 +60,13 @@ camH = calibInfo.camH;
 prjW = calibInfo.prjW;
 prjH = calibInfo.prjH;
 
-% manually select roi to be reconstructed
-msg = 'Waiting user to draw the region to be reconstructed...';
-waitbar(0.4, waitBarHandle, msg);
-disp(msg);
-app.ManualSegButton.ButtonPushedFcn(app, [])
+if(~app.calibOption.useExistingMask)
+    % manually select roi to be reconstructed
+    msg = 'Waiting user to draw the region to be reconstructed...';
+    waitbar(0.4, waitBarHandle, msg);
+    disp(msg);
+    app.ManualSegButton.ButtonPushedFcn(app, [])
+end
 
 % extract matched color grid Nodes' coords in camera and projector images
 msg = 'Matching structured light pattern...';
@@ -210,6 +212,10 @@ for i=1:length(validNodesIdx)
         edgePts2d = ImgProc.cvUndistortPoints([cols,rows], camK, camKc);
         rows = edgePts2d(:, 2);
         cols = edgePts2d(:, 1);
+              
+        if (isempty(otherNode))
+           continue;
+        end
         
         % two cam nodes coords
         c1 = ImgProc.cvUndistortPoints(otherNode.Centroid, camK, camKc);
