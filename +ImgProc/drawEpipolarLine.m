@@ -1,5 +1,5 @@
-function drawEpipolarLine(F, p1, im1, im2, verbose)
-%% ImgProc.drawEpipolarLine draws the epipolar lines of p1 using F (transforms p1 to p2, i.e., 
+function drawEpipolarLine(F, p1, im1, im2)
+%% ImgProc.drawEpipolarLine draws the epipolar lines of p1 using F (transforms p1 to p2, i.e.,
 % transforms points p1 in im1 to lines to im2)
 % See also: epipolarLine, Reconstruct.findEpipolarInliers, reconstructGUI
 
@@ -27,23 +27,19 @@ function drawEpipolarLine(F, p1, im1, im2, verbose)
 %%
 epiLines = epipolarLine(F, p1);
 
-if(nargin < 5)
-    verbose = true;
-end
-
 % Compute the intersection points of the lines and the image border.
 boarderPoints = lineToBorderPoints(epiLines, size(im2));
 offCols = max(size(im1,2),size(im2,2));
 
-if(verbose)
-    % Show epipolar lines in the images.
-    figure;imshowpair(im1, im2, 'montage');
-    title('Epipolar lines');
-    hold on
-    plot(p1(:,1), p1(:,2), 'go', 'markerfacecolor','g'); 
-    hold on 
-    line(boarderPoints(:, [1,3])'+ offCols, boarderPoints(:, [2,4])', 'LineWidth', 2); 
-    hold off
-end
+
+% Show epipolar lines in the images.
+figure;imshowpair(im1, im2, 'montage');
+title('Epipolar lines');
+hold on
+plot(p1(:,1), p1(:,2), 'go', 'markerfacecolor','g');
+hold on
+line(boarderPoints(:, [1,3])'+ offCols, boarderPoints(:, [2,4])', 'LineWidth', 2);
+hold off
+
 
 end
