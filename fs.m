@@ -27,5 +27,6 @@ h = figure('Name', inputname(1));
 
 imshow(im);
 title(inputname(1));
+impixelinfo;
 end
 
