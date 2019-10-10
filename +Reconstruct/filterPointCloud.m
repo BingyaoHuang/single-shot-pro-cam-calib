@@ -1,4 +1,4 @@
-function [pts3d, pts2d, vecDrs, idxOut] = filterPointCloud(pcIn, imD, param, camW, camH)
+function [pts3d, pts2d, vecDrs, idxOut] = filterPointCloud(pcIn, imMask, param, camW, camH)
 %% Filter point cloud using input Intel RealSense depth image as a mask.
 % We only keep the points within the depth image range.
 
@@ -38,12 +38,13 @@ inlierIdx = pts2d(:,1)<=camW & pts2d(:,2)<=camH & pts2d(:,1)>0 & pts2d(:,2)>0;
 pts2d = pts2d(inlierIdx,:);
 pts3d = pts3d(inlierIdx,:);
 
-% get those points' depth values in realsense depth image
-idxA = sub2ind(size(imD), pts2d(:,2),  pts2d(:,1));
-vecDrs = imD(idxA);
+% get those points' depth values in realsense depth mask image
+idxA = sub2ind(size(imMask), pts2d(:,2),  pts2d(:,1));
+vecDrs = imMask(idxA);
 
-% only keep points in realsense depth image range
+% only keep points in realsense depth mask image range
 idx = vecDrs > 0;
+% idx = vecDrs > -inf; % dont filter using depth map, if the point cloud is cleaned
 vecDrs = vecDrs(idx);
 pts2d = pts2d(idx,:);
 pts3d = pts3d(idx,:);
