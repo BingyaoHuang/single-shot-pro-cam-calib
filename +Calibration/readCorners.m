@@ -57,8 +57,8 @@ end
 corners = corners(:,:,usedSetIdx);
 
 if(nnz(usedSetIdx) < length(usedSetIdx))
-    warning(['Checkerboard corners in set(s) ', '[',num2str(find(usedSetIdx == 0))',...
-        ']', ' are set to -1 since matlab was not able to be extracted checkerboard corners'])
+    warning(['Checkerboard corners in set(s) ', '[',num2str(find(usedSetIdx == 0)'),...
+        ']', ' are set to -1 since matlab cannot extract checkerboard corners'])
 end
 end
 
