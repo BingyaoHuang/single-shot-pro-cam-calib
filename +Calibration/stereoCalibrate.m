@@ -33,7 +33,7 @@ function stereoParams = stereoCalibrate(modelPtsCell, camImgPtsCell, prjImgPtsCe
 
 %% Flags
 if nargin < 7
-    useDistortion = false;
+    useDistortion = true;
 end
 
 %% 1. Calibrate camera and projector intrinsics and R, T from model points
