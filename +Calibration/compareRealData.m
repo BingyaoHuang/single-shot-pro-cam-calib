@@ -27,8 +27,8 @@ disp(' ');
 disp('Comparing reconstrcuted 3D object with depth camera captured 3D object, please wait...')
 %% Load realsense data
 % reconId = '12';
-realSenseReconName = fullfile(calibInfo.path, ['recon-', reconId, '.ply']);
-calibReconName = fullfile(calibInfo.path, 'MT', ['Set', sprintf('%02d', str2num(reconId)), '.yml']);
+realSenseReconName = fullfile(calibInfo.path, 'realSenseRecon', ['recon-', reconId, '.ply']);
+calibReconName = fullfile(calibInfo.path, 'MT', ['Set', sprintf('%02d', str2num(reconId))], 'sl.yml');
 
 % RealSense reconstructed point cloud
 if(exist(realSenseReconName, 'file'))
@@ -83,19 +83,25 @@ disp(metricsTable);
 
 %% Export figures
 % save figures
-SAVE_FIG = 0;
+SAVE_FIG = 1;
 
+n = 1;
 figIds = findobj('Type', 'figure');
+% sort according to number
+[val, idx] = sort([figIds.Number]);
+figIds = figIds(idx);
+
 if(SAVE_FIG)
 
     % export as png format
-    exportPath = [];
+    exportPath = 'doc\recon\';
     for i=1:length(figIds)
         curFig = figure(figIds(i));
         figName = strrep(curFig.Name, '/', ' ');
-        figName = strrep(figName, ' ', '_');
+        figName = [num2str(n),  '_', strrep(figName, ' ', '_')];
         savefig(curFig, [exportPath, figName, '.fig']);
         export_fig(curFig, [exportPath, figName, '.png'], '-transparent');
+        n = n + 1;
     end
 end
 

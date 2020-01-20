@@ -30,11 +30,12 @@
 % SOFTWARE.
 
 %%
-clc; clear; close all
+% clc; 
+clear; close all
 
 %% Options
 dataRoot = 'data';
-dataName = 'calibration-11-13-17';
+dataName = '6-3-19';
 
 calibInfo = Calibration.loadCalibInfo(fullfile(dataRoot, dataName));
 calibInfo.dataName = dataName;
@@ -76,6 +77,14 @@ else
     camCorners = Calibration.readCorners('cam_', cornerDir, calibInfo);    
 end
 
+% find opencv checkerboard corners and matlab checkerboard corners matches (for MT method)
+% imLightNames = ImgProc.getImageNames(calibInfo.path, 'light');
+% imLightNames = imLightNames(calibInfo.sets);
+% [cornersCV, ret] = cv.findChessboardCorners(rgb2gray(imread(imLightNames{1})), calibInfo.boardSize-1);
+% cornersCV = cell2mat(cornersCV');
+% [idx, err] = knnsearch(cornersCV, camCorners(:,:,1));
+
+
 %% Step 2: Calibrate camera, (skip 1 if using existing camera corners)
 disp(' ');
 disp('Calibrating camera using checkerboard corners...');
@@ -115,6 +124,9 @@ disp('Reading existing Moreno & Taubin warped projector corners and nodes...');
 cornerDirMT = fullfile(calibInfo.path, 'MT');
 prjCornersMT = Calibration.readCorners('proj_', cornerDirMT, calibInfo);
 
+% change order to match matlab checkerboard corner orders
+% prjCornersMT = prjCornersMT(idx,:,:);
+
 if (verbose)
     for i = 1:calibInfo.numSets
         figure;
@@ -126,6 +138,23 @@ if (verbose)
         hold off;
     end
 end
+
+%% debug
+% camCornersMT = Calibration.readCorners('cam_', cornerDirMT, calibInfo);
+% i=1;
+% figure;
+% for j = 1:size(camCorners,1)
+%     plot(camCorners(j, 1, i), camCorners(j, 2, i), 'ro'); text(camCorners(j, 1, i), camCorners(j, 2, i),num2str(j)); hold on
+%     plot(camCornersMT(j, 1, i), camCornersMT(j, 2, i), 'b+');text(camCornersMT(j, 1, i), camCornersMT(j, 2, i),num2str(j));
+% end
+% 
+% figure;
+% tst =  camCorners(idx,:,:);
+% for j = 1:size(camCorners,1)
+%     plot(tst(j, 1, i), tst(j, 2, i), 'ro'); text(tst(j, 1, i), tst(j, 2, i),num2str(j)); hold on
+%     plot(camCornersMT(j, 1, i), camCornersMT(j, 2, i), 'b+');text(camCornersMT(j, 1, i), camCornersMT(j, 2, i),num2str(j));
+% end
+
 
 %% Step 5. Warp node points (Xc) in camera image to model space (Xm)
 disp(' ');
@@ -296,5 +325,5 @@ disp(calibTable);
 %% Step 9. Compare 3D reconstruction
 % for calibration-11-13-17, you can use reonSet 8 (folded paper board), 9
 % (plaster bust), 10 (paper box).
-reconSet = '10'; % no need to write as %02d format
+reconSet = '21'; % no need to write as %02d format
 linkedFigs = Calibration.compareRealData(reconSet, calTypes, algNames, calibInfo);

@@ -1,4 +1,4 @@
-function stereoParams = stereoCalibrate(modelPtsCell, camImgPtsCell, prjImgPtsCell, camImgSize, prjImgSize, objective)
+function stereoParams = stereoCalibrate(modelPtsCell, camImgPtsCell, prjImgPtsCell, camImgSize, prjImgSize, objective, useDistortion)
 %% Calibrates camera and projector parameters using bundle adjustment
 %
 % This function calibrates camera and projector intrinsics and extrinsics
@@ -31,6 +31,11 @@ function stereoParams = stereoCalibrate(modelPtsCell, camImgPtsCell, prjImgPtsCe
 % OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 % SOFTWARE.
 
+%% Flags
+if nargin < 7
+    useDistortion = false;
+end
+
 %% 1. Calibrate camera and projector intrinsics and R, T from model points
 % Maximum count for termination criteria
 maxCount = 1000;
@@ -39,12 +44,21 @@ maxCount = 1000;
 calibCriteria = struct('type','Count+EPS', 'maxCount', maxCount, 'epsilon', 1e-6);
 
 % camera init guess
-[camK, camKc, camReprojErr, camRvecs, camTvecs] = cv.calibrateCamera(modelPtsCell, camImgPtsCell, camImgSize, ...
-    'Criteria', calibCriteria, 'FixK3', true);
-
-% projector init guess
-[prjK, prjKc, prjReprojErr, prjRvecs, prjTvecs] = cv.calibrateCamera(modelPtsCell, prjImgPtsCell, prjImgSize, ...
-    'Criteria', calibCriteria, 'FixK3', true);
+if (~useDistortion) % no tangent or radial distortions, i.e., (p1,p2,k1,k2) = 0
+    [camK, camKc, camReprojErr, camRvecs, camTvecs] = cv.calibrateCamera(modelPtsCell, camImgPtsCell, camImgSize, ...
+        'Criteria', calibCriteria, 'FixTangentDist', true, 'FixK1', true,'FixK2', true, 'FixK3', true);
+    
+    % projector init guess
+    [prjK, prjKc, prjReprojErr, prjRvecs, prjTvecs] = cv.calibrateCamera(modelPtsCell, prjImgPtsCell, prjImgSize, ...
+        'Criteria', calibCriteria, 'FixTangentDist', true, 'FixK1', true,'FixK2', true, 'FixK3', true);
+else
+    [camK, camKc, camReprojErr, camRvecs, camTvecs] = cv.calibrateCamera(modelPtsCell, camImgPtsCell, camImgSize, ...
+        'Criteria', calibCriteria, 'FixK3', true);
+    
+    % projector init guess
+    [prjK, prjKc, prjReprojErr, prjRvecs, prjTvecs] = cv.calibrateCamera(modelPtsCell, prjImgPtsCell, prjImgSize, ...
+        'Criteria', calibCriteria, 'FixK3', true);
+end
 
 % only keep k1,k2,p1,p2
 camKc = camKc(1:4);
@@ -116,7 +130,7 @@ elseif(strcmp(objective, 'BA'))
     param0 = [param0, modelPtsMat(:)'];
     
     % set sparse jacobian pattern
-    options.JacobPattern = jacobianPattern(param0, modelPtsCell);
+    options.JacobPattern = jacobianPattern(param0, modelPtsCell, useDistortion);
 end
 
 %% 4. nonlinear optimization
@@ -139,7 +153,7 @@ stereoParams.T = T;
 
 % translation vector in matrix cross product form
 tx = [0, -T(3), T(2);
-     T(3), 0 , -T(1);
+    T(3), 0 , -T(1);
     -T(2), T(1) , 0 ];
 
 % E = [t] × R
@@ -253,7 +267,7 @@ prevPos = 1;
 for i=1:numSets
     % current plane's pts3d
     nPts = length(initModelPts{i});
-    curModelPts = modelPts(prevPos:prevPos+nPts-1,:);    
+    curModelPts = modelPts(prevPos:prevPos+nPts-1,:);
     prevPos = prevPos+nPts;
     
     % camera residual
@@ -292,12 +306,12 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Construct Jacobian pattern for faster bundle adjustment
-function J = jacobianPattern(x, modelPts)
+function J = jacobianPattern(x, modelPts, useDistortion)
 
 %% Descriptions
 % This function generates a sparse Jacobian pattern for lsqnonlin, if any
-% entry is 0, it mean this finite difference is set to 0, otherwise it is
-% computed using finite difference.
+% entry is 0, it means its finite difference is 0, otherwise it is
+% computed using finite difference. 
 
 %% NOTE: jacobian pattern is as follows:
 %--------------------------------------------------------------------------
@@ -380,7 +394,7 @@ J = spalloc(rows,cols,nz);
 % d(reprjResxy) / d(fx,fy,cx,cy,k1,k2,p1,p2)
 % resxIntrinsic = [1,0,1,0,1,1,1,1];
 % resyIntrinsic = [0,1,0,1,1,1,1,1];
-% derevative of reprojection residual in x respect to intrinsics index
+% derivative of reprojection residual in x respect to intrinsics index
 camDresxDin = [1,3, 5:8];
 camDresyDin = [2,4, 5:8];
 
@@ -479,6 +493,12 @@ end
 
 %% 5. 3dPtResXYZ
 J(curRowPos:end, nInExParams+1:end) = speye(3*nPts, 3*nPts);
+
+% if no distortion, set distortion coolumns to 0 (do not compute gradient)
+if(~useDistortion)
+    J(:, 5:8) = 0;   % camKc
+    J(:, 13:16) = 0; % prjKc
+end
 
 %% 6. visualize
 % figure;imagesc(J)

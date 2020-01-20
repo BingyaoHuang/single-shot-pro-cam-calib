@@ -42,6 +42,9 @@ verbose = app.calibOption.verbose;
 % use matlab parfor to speedup calibration
 useParallel = app.calibOption.useParallel;
 
+% distortion model (has distortion or not)
+useDistortion = app.calibOption.useDistortion;
+
 % checkerboard corners will be extracted and saved by the script.
 % If no entry in calib-info.yml file has been modified since the last
 % calibration, you can set the two flags to true to speed up recalibration.
@@ -157,7 +160,7 @@ waitbar(0.9, waitBarHandle, msg);
 disp(msg);
 
 % 1. Use 'BA' option to specify bundle adjustment on Xm
-stereoParams = Calibration.stereoCalibrate(Xm, Xc, Xp, calibInfo.camImgSize, calibInfo.prjImgSize, 'BA');
+stereoParams = Calibration.stereoCalibrate(Xm, Xc, Xp, calibInfo.camImgSize, calibInfo.prjImgSize, 'BA', useDistortion);
 stereoParams.sets = calibInfo.sets;
 stereoParams.dataName = calibInfo.dataName;
 

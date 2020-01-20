@@ -25,7 +25,7 @@ function h = plotErrors(results, vecNoise, algIdx, metricRange, figName)
 %%
 
 % generate figures for latex
-LATEX = false;
+LATEX = true;
 
 results = results(1:length(vecNoise), :);
 
@@ -170,9 +170,9 @@ for metric = metricRange(1):metricRange(2)
     
     if(metric == metricRange(1))
         if(LATEX)
-            legend({'Moreno & Taubin [17]', 'Global homography', 'Proposed w/o BA', 'Proposed'}, 'Location', 'northwest', 'FontSize', 29);
+            legend({'Moreno & Taubin [27]', 'Global homography', 'Proposed w/o BA', 'Proposed'}, 'Location', 'northwest', 'FontSize', 29);
         else
-            legend({'Moreno & Taubin [17]', 'Global homography', 'Proposed w/o BA', 'Proposed'}, 'Location', 'northwest');
+            legend({'Moreno & Taubin [27]', 'Global homography', 'Proposed w/o BA', 'Proposed'}, 'Location', 'northwest');
         end
     end
     
