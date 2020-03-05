@@ -322,6 +322,49 @@ disp(' ');
 disp('Calibration reprojection errors:'); 
 disp(calibTable);
 
+%% reprojection error scattered plot
+% colorList = lines(5);
+colorList = [
+    0    0.4470    0.7410;
+%     0.8020    0.2804    0.1039;
+    0.9290    0.6940    0.1250
+    0.4660    0.6740    0.1880;
+    0.6350    0.0780    0.1840;
+    ];
+
+sz = 60;
+figure;
+% cam
+sp1 = subplot(1,2,1); 
+a = scatter(stereoParamsMT.camRes(:,1), stereoParamsMT.camRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(1,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+b = scatter(stereoParamsGH.camRes(:,1), stereoParamsGH.camRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(2,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+c = scatter(stereoParamsDG.camRes(:,1), stereoParamsDG.camRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(3,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+d = scatter(stereoParamsPR.camRes(:,1), stereoParamsPR.camRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(4,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+axis(sp1, [-2, 2,-1.5, 1.5]); box on;
+uistack(a, 'top');
+legend([a,b,c,d], {'Moreno & Taubin [29]', 'Global homography','Proposed w/o BA', 'Proposed'}, 'Location', 'northwest'); 
+xlabel('\fontsize{13}{0}\bf\selectfont x (pixel)', 'interpreter', 'latex');
+ylabel('\fontsize{13}{0}\bf\selectfont y (pixel)', 'interpreter', 'latex');
+set(gca, 'FontSize', 16); 
+title('\fontsize{15}{0}\bf\selectfont Camera reprojection error', 'interpreter', 'latex');
+
+% prj
+sp2 = subplot(1,2,2); 
+e = scatter(stereoParamsMT.prjRes(:,1), stereoParamsMT.prjRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(1,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+f = scatter(stereoParamsGH.prjRes(:,1), stereoParamsGH.prjRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(2,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+g = scatter(stereoParamsDG.prjRes(:,1), stereoParamsDG.prjRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(3,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+h = scatter(stereoParamsPR.prjRes(:,1), stereoParamsPR.prjRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(4,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
+% axis(sp2, [-15, 15, -11.25, 11.25]); box on;
+axis(sp2, [-14, 14, -10.5, 10.5]); box on;
+uistack(e, 'top');
+uistack(h, 'top');
+% legend([e,f,g,h], {'Moreno & Taubin [29]', 'Global homography','Proposed w/o BA', 'Proposed'}, 'Location', 'northwest'); 
+xlabel('\fontsize{13}{0}\bf\selectfont x (pixel)', 'interpreter', 'latex');
+ylabel('\fontsize{13}{0}\bf\selectfont y (pixel)', 'interpreter', 'latex');
+set(gca, 'FontSize', 16); 
+title('\fontsize{15}{0}\bf\selectfont Projector reprojection error', 'interpreter', 'latex');
+hold off;
+
 %% Step 9. Compare 3D reconstruction
 % for calibration-11-13-17, you can use reonSet 8 (folded paper board), 9
 % (plaster bust), 10 (paper box).

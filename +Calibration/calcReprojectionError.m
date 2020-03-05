@@ -73,4 +73,9 @@ paramOut.prjReprojErr = sqrt(mean(sum(prjRes.^2, 2)));
 % stereo RMS reprojection error
 stereoRes = [camRes; prjRes];
 paramOut.stereoReprojErr = sqrt( mean(sum(stereoRes.^2, 2)) );
+
+%% save params for scatter plot
+paramOut.camRes = camRes;
+paramOut.prjRes = prjRes;
+
 end
