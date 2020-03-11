@@ -1,5 +1,8 @@
 function hlink = compareRealData(reconId, calTypes, algNames, calibInfo)
 %% Compare reconstructed point cloud with Intel RealSense F200 captured point cloud.
+% Note that for better reconstruction comparisons, we use dense multi-shot
+% SL pixe mappings from MT's method, not our sparse SL pixel mapping.
+% Only the calibration parameters are different for the compared methods.
 
 %% License
 % ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
@@ -83,7 +86,7 @@ disp(metricsTable);
 
 %% Export figures
 % save figures
-SAVE_FIG = 1;
+SAVE_FIG = 0;
 
 n = 1;
 figIds = findobj('Type', 'figure');
@@ -100,7 +103,7 @@ if(SAVE_FIG)
         figName = strrep(curFig.Name, '/', ' ');
         figName = [num2str(n),  '_', strrep(figName, ' ', '_')];
         savefig(curFig, [exportPath, figName, '.fig']);
-        export_fig(curFig, [exportPath, figName, '.png'], '-transparent');
+        export_fig(curFig, [exportPath, figName, '.png'], '-transparent'); % you need to install export_fig package
         n = n + 1;
     end
 end
