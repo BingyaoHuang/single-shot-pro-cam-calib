@@ -38,8 +38,8 @@ numNodes = numel(Nodes);
 for i = 1:numNodes
     %% find all nodes on the same horizontal line
     if(~Nodes(i).hCorrected)
-        eastNeighbors = findNextNode(Nodes, i, 'E',0);
-        westNeighbors = findNextNode(Nodes, i, 'W',0);
+        eastNeighbors = ImgProc.findNbInDir(Nodes, i, 'E',0);
+        westNeighbors = ImgProc.findNbInDir(Nodes, i, 'W',0);
         horiNodeList = [i, eastNeighbors, westNeighbors];
         
         horiColors = [Nodes(horiNodeList).horiColor];
@@ -50,8 +50,8 @@ for i = 1:numNodes
     
     %% find all nodes on the same vertical line
     if(~Nodes(i).vCorrected)
-        northNeighbors = findNextNode(Nodes, i, 'N',0);
-        southNeighbors = findNextNode(Nodes, i, 'S',0);
+        northNeighbors = ImgProc.findNbInDir(Nodes, i, 'N',0);
+        southNeighbors = ImgProc.findNbInDir(Nodes, i, 'S',0);
         vertNodeList = [i, northNeighbors, southNeighbors];
         
         vertColors = [Nodes(vertNodeList).vertColor];
@@ -61,55 +61,11 @@ for i = 1:numNodes
     end
 end
 
-numHoriChange = nnz([NodesOut.horiColor] - [Nodes.horiColor]);
-numVertChange = nnz([NodesOut.vertColor] - [Nodes.vertColor]);
-
 if(verbose)
+    numHoriChange = nnz([NodesOut.horiColor] - [Nodes.horiColor]);
+    numVertChange = nnz([NodesOut.vertColor] - [Nodes.vertColor]);
+
     disp(['horizontal corrections:  = ', num2str(numHoriChange)])
     disp(['vertical corrections:  = ', num2str(numVertChange)])
 end
-end
-
-%% Local functions
-% this function returns a list of Nodes id on the same stripe,
-% the search direction is specified by user input
-function nextId = findNextNode(Nodes, id, direction, iIn)
-% Enable for debugging..
-%     persistent i;
-%
-%     if nargin == 4
-%       i = iIn;
-%     else
-%       i = i+1;
-%     end
-%
-%     display([direction ' ' num2str(i)]);
-node = Nodes(id);
-switch direction
-    case 'N'
-        nextId = node.N;
-    case 'S'
-        nextId = node.S;
-    case 'E'
-        nextId = node.E;
-    case 'W'
-        nextId = node.W;
-    otherwise
-        error('wrong direction')
-end
-
-if(id == nextId)
-    nextId = [];
-    disp(['node.' direction ' of ' num2str(id) ' is pointing to itself..returning']);
-    return;
-end
-
-if(nextId < 0)
-    nextId = [];
-    return;
-end
-
-nextId = [nextId, findNextNode(Nodes, nextId, direction)];
-
-
 end
