@@ -42,6 +42,7 @@ imVertRGB = maskColorGrid(imColorGrid, imNode, imVertEdge);
 [imVertLabel, imVertRecv] = clusterColors(imVertRGB, 0);
 
 if(verbose)
+    figure;
     subplot(2,1,1);
     imshowpair(imHoriRGB, imHoriRecv, 'Montage');
     title('[horizontal] Original color grid and detected labels in pseudocolor');
@@ -101,54 +102,54 @@ vecVal = imVal(colorPixelIdx);
 
 vecHSV = [vecHue, vecSat, vecVal];
 
-% incase local minima, replicate 5 times
-[vecLabels, centroids] = kmeans(vecHue, k, 'Replicates', 5);
+% Liu, Dongju, and Jian Yu. "Otsu method and K-means." In 2009 Ninth International Conference on Hybrid Intelligent Systems, vol. 1, pp. 344-349. IEEE, 2009.
+% Otsu is the global optimal k-means, although it is a little slower.
+% figure; histogram(vecHue, 360);
+use_kmean = 0;
+if use_kmean
+    % incase local minima, replicate 5 times
+    [vecLabels, centroids] = kmeans(vecHue, k, 'Replicates', 5);
+        [sortedCentroids, idx] = sort(centroids(:,1), 1, 'ascend');
+    vecSortedLabels = vecLabels;
+    
+    for i=1:numel(idx)
+        vecSortedLabels(vecLabels == idx(i)) = i;
+    end
 
-[sortedCentroids, idx] = sort(centroids(:,1),1, 'ascend');
-
-vecSortedLabels = vecLabels;
-
-for i=1:numel(idx)
-    vecSortedLabels(vecLabels == idx(i)) = i;
+    vertValsMins = zeros(numel(idx),1);
+    minVals = vertValsMins;
+    if(any(diff(sortedCentroids) < 45/360))
+        if(~isHorizontal)
+            vertVals = [45 150 225 315]/360;
+        else
+            vertVals = [0 90 180 285 360]/360;
+        end
+        
+        for i = 1:numel(idx)
+            val = sortedCentroids(i);
+            [minVal, iidx] = min(abs(vertVals - val));
+            vertValsMins(i) = iidx;
+            minVals(i) = minVal;
+        end
+        
+        vecSortedLabels2 = zeros(size(vecLabels));
+        
+        for i = 1:numel(vertValsMins)
+            vecSortedLabels2(vecLabels == idx(i)) = vertValsMins(i);
+        end
+        
+        vecSortedLabels = vecSortedLabels2;
+    end
+else
+    % Otsu
+    thresh = multithresh(vecHue, k-1);
+    vecLabels = imquantize(vecHue, thresh);
+    centroids = mean([0, thresh; thresh, 1])';
+    vecSortedLabels = vecLabels;
 end
-
-vertValsMins = zeros(numel(idx),1);
-minVals = vertValsMins;
-
-if(any(diff(sortedCentroids) < 45/360))
-    if(~isHorizontal)
-        vertVals = [45 150 225 315]/360;
-    else
-        vertVals = [0 90 180 285 360]/360;
-    end
-    
-    for i = 1:numel(idx)
-        val = sortedCentroids(i);
-        [minVal, iidx] = min(abs(vertVals - val));
-        vertValsMins(i) = iidx;
-        minVals(i) = minVal;
-    end
-    
-    vecSortedLabels2 = zeros(size(vecLabels));
-    
-    for i = 1:numel(vertValsMins)
-        vecSortedLabels2(vecLabels == idx(i)) = vertValsMins(i);
-    end
-    
-    vecSortedLabels = vecSortedLabels2;
-end
-
-
-
 
 if(isHorizontal)    %correct for red being on either side
     vecSortedLabels(vecSortedLabels==5) = 1;
-    %         vecPurpleDistance=vecHue(vecSortedLabels==4)-sortedCentroids(4);    %find purple distances
-    %         purpStandDeviation=std(vecPurpleDistance);
-    %         vecLabels2Change=vecPurpleDistance>1.5*purpStandDeviation;          %greater than 1.5 mahal is to be treated red
-    %         %perhaps dynamically change 1.5 in future?
-    %
-    %         vecSortedLabels(vecSortedLabels==4)=4-3*double(vecLabels2Change);
 end
 
 imSize = size(imHue);
