@@ -196,5 +196,6 @@ if(~isempty(camCorners))
     end
 end
 
-% imColorGridMasked = ImgProc.maskImage(imColorGridMasked, imBWGrid);
+% enhanced image using imadjust3 may fail color detection when image is already saturated.
+imColorGridMasked = ImgProc.maskImage(imColorGridMasked, imBWGrid);
 end
