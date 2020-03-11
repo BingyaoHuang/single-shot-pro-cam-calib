@@ -117,12 +117,10 @@ for i = 1:numEdges
     
 end
 
-% create a graph object of ajacency matrix
-% then we can use all the functions in http://www.mathworks.com/help/matlab/ref/graph-object.html
-G = graph(A);
+%% step 6. create the ajacency matrix and graph from Edges and Nodes
 
 %% step 7. traverse the grid to assign four neighbors to Nodes
-Nodes = ImgProc.traverseGrid(Nodes, Edges, G);
+Nodes = ImgProc.traverseGrid(Nodes, Edges);
 
 %% step 8. get horizontal and vertical edges
 horiIdx = [Edges.isH] == 1;

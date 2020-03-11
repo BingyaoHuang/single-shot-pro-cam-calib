@@ -1,4 +1,4 @@
-function Nodes = traverseGrid(Nodes, Edges, G, verbose)
+function Nodes = traverseGrid(Nodes, Edges, verbose)
 %% Traverse the color grid graph to find the neighbors of each Node
 
 %% License
@@ -24,11 +24,38 @@ function Nodes = traverseGrid(Nodes, Edges, G, verbose)
 
 %%
 
-if(nargin < 4)
+if(nargin < 3)
     verbose = 0;
 end
 
+%% create the ajacency matrix and graph from Edges and Nodes
 numNodes = numel(Nodes);
+numEdges = numel(Edges); 
+
+A = zeros(numNodes, numNodes); % for both horizontal and vertical
+% hA = zeros(numNodes, numNodes); % for horizontal only
+
+for i = 1:numEdges
+    curEdge = Edges(i);
+    
+    if (numel(curEdge.nodes) == 2)% ignore end point and end edge
+        edgeLength = numel(curEdge.PixelIdxList);
+        A(curEdge.nodes(1), curEdge.nodes(2)) = edgeLength;
+        A(curEdge.nodes(2), curEdge.nodes(1)) = edgeLength;
+%         if(curEdge.isH)
+%             hA(curEdge.nodes(1), curEdge.nodes(2)) = edgeLength;
+%             hA(curEdge.nodes(2), curEdge.nodes(1)) = edgeLength;
+%         end
+    end
+end
+
+% vA = A - hA; % for vertical only
+
+% create a graph object of ajacency matrix
+% then we can use all the functions in http://www.mathworks.com/help/matlab/ref/graph-object.html
+G = graph(A);
+
+%% Traverse
 [Nodes.neighbor] = deal([]);
 [Nodes.N] = deal([-1]);
 [Nodes.S] = deal([-1]);
@@ -79,7 +106,6 @@ for i =1:numNodes
     if(count ~= numNeighbors)
         Nodes(i).error = 1;
     end
-    
 end
 
 
