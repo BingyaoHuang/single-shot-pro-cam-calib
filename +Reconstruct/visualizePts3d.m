@@ -36,7 +36,7 @@ hold on;
 title([figTitle ' 3d point cloud'] );
 
 % plot camera and projector models
-cameraSize = 50;
+cameraSize = 20 ;
 plotCamera('Size', cameraSize, 'Color', 'b', 'Label', 'Camera', 'Opacity', 0);
 grid on
 
@@ -51,14 +51,15 @@ zlabel('Z', 'fontsize', 30);
 
 % plot the 3d points in green
 if(~isempty(pts3d))
-    scatter3(pts3d(:,1),pts3d(:,2),pts3d(:,3), 10, 'go', 'filled',...
+    h = scatter3(pts3d(:,1),pts3d(:,2),pts3d(:,3), 10, 'go', 'filled',...
         'MarkerEdgeColor', 'k');
 end
 
 hold off;
 daspect([1 1 1]);
 view(3);
-axis vis3d tight;
+% axis vis3d tight;
+h.Clipping = 'off'; % disable clipping
 
 rotate3d on
 end
