@@ -25,10 +25,9 @@ function [Edges, Nodes] = skeleToStruct(imNode, imEdge)
 
 %%
 %     imNode = logical(imSkele - imEdge);
-imEdgeLabel = zeros(size(imNode),'uint16');
 
 % create edges
-Edges = regionprops(imEdge,'PixelIdxList', 'area', 'Orientation', 'solidity');
+Edges = regionprops(imEdge, 'PixelIdxList', 'Area', 'Orientation', 'Solidity');
 
 if(mean([Edges.Area]) < 5)
     warning('Color grid too dense, try moving the board away from the projector or moving the camera closer to the board')
@@ -38,13 +37,13 @@ end
 Edges = Edges([Edges.Solidity] > 0.5);
 Edges = Edges([Edges.Area] < mean([Edges.Area]) + 3*std([Edges.Area]));
 [Edges(:).nodes] = deal([]);
-[Edges(:).end] = deal([]);
-[Edges(:).isH] = deal([]);  % a flag indicates it is horizontal
+% [Edges(:).end] = deal([]);
+[Edges(:).isH] = deal([]);  % horizontal or vertical?
 
-numEdges = numel(Edges);
-for i = 1:numEdges
-    imEdgeLabel(Edges(i).PixelIdxList) = i;
-end
+% label edge pixels
+imEdgeLabel = zeros(size(imNode));
+imEdgeLabel(vertcat(Edges.PixelIdxList)) = 1;
+imEdgeLabel = uint16(bwlabel(imEdgeLabel));
 
 % create nodes
 Nodes = regionprops(imNode,'PixelIdxList', 'area', 'centroid');
