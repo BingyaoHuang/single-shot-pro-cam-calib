@@ -44,13 +44,13 @@ end
 [Edges, Nodes] = ImgProc.skeleToStruct(imNode, imEdge);
 
 % get rid unnormally long edges
-hEdge = Edges(logical([Edges.isH]));
-hEdge = hEdge([hEdge.Area] < mean([hEdge.Area]) + 2*std([hEdge.Area]));
+    hEdge = Edges(logical([Edges.isH]));
+    hEdge = hEdge([hEdge.Area] < mean([hEdge.Area]) + 2*std([hEdge.Area]));
 
-vEdge = Edges(~logical([Edges.isH]));
-vEdge = vEdge([vEdge.Area] < mean([vEdge.Area]) + 2*std([vEdge.Area]));
+    vEdge = Edges(~logical([Edges.isH]));
+    vEdge = vEdge([vEdge.Area] < mean([vEdge.Area]) + 2*std([vEdge.Area]));
 
-Edges = [hEdge; vEdge];
+    Edges = [hEdge; vEdge];
 
 % find isolated edges (area == 1) and remove those edges from imEdge
 % and add to imNodes
@@ -76,7 +76,7 @@ numEdges = numel(Edges);
 
 %% step 5. create labeled edge and node images for debugging
 
-if (verbose)
+if (verbose)   
 %     imEdgeLabel = zeros(size(imNode), 'uint16');
 %     imNodeLabel = zeros(size(imNode), 'uint16');
 %     
@@ -105,8 +105,8 @@ end
 
 %% step 6. create the ajacency matrix and graph from Edges and Nodes
 A = zeros(numNodes, numNodes);
-
-for i = 1:numEdges
+    
+    for i = 1:numEdges
     curEdge = Edges(i);
     
     if (numel(curEdge.nodes) == 2)% ignore end point and end edge
@@ -156,31 +156,41 @@ imNodeWide = imdilate(imNode, strel('square', 3));
 
 imHoriWide = imdilate(imHoriEdge, strel('disk', 1));
 imHoriWide = logical(imHoriWide .* (~imNodeWide));
-% figure;
-% imagesc(imHoriWide);
-% title('dilated horizontal edges');
 
 imVertWide = imdilate(imVertEdge, strel('disk', 1));
 imVertWide = logical(imVertWide .* (~imNodeWide));
-% figure;imagesc(imVertWide);
-% title('dilated vertical edges');
 
-for i = 1:numNodes
+% labeled images (faster than imreconstruct)
+imHoriWideL = bwlabel(imHoriWide);
+imVertWideL = bwlabel(imVertWide);
+
+for i = 1:numel(Nodes)
     hEdges = [Nodes(i).hEdges];
     hEdges = hEdges(hEdges > 0);
-    curHoriEdgePixIdx = vertcat(Edges(hEdges).PixelIdxList);
-    imMarker = false(imSize);
-    imMarker(curHoriEdgePixIdx) = 1;
-    imWideRecon = imreconstruct(imMarker, imHoriWide, 4);
-    curHoriEdgeLabels = imHoriLabel(imWideRecon > 0);
+    curHoriEdgePixIdx = vertcat(Edges(hEdges).PixelIdxList); 
     
+%     imMarker = false(imSize);
+%     imMarker(curHoriEdgePixIdx) = 1;
+%     imWideRecon = imreconstruct(imMarker, imHoriWide, 4);
+%     curHoriEdgeLabels = imHoriLabel(imWideRecon > 0);
+    
+    hLabels = imHoriWideL(curHoriEdgePixIdx);
+    idx = ismember(imHoriWideL, hLabels(hLabels>0));
+    curHoriEdgeLabels = imHoriLabel(idx); 
+    
+    % vertical
     vEdges = [Nodes(i).vEdges];
     vEdges = vEdges(vEdges > 0);
     curVertEdgePixIdx = vertcat(Edges(vEdges).PixelIdxList);
-    imMarker = false(imSize);
-    imMarker(curVertEdgePixIdx) = 1;
-    imWideRecon = imreconstruct(imMarker, imVertWide, 4);
-    curVertEdgeLabels = imVertLabel(imWideRecon > 0);
+    
+%     imMarker = false(imSize);
+%     imMarker(curVertEdgePixIdx) = 1;
+%     imWideRecon = imreconstruct(imMarker, imVertWide, 4);
+%     curVertEdgeLabels = imVertLabel(imWideRecon > 0);
+    
+    vLabels = imVertWideL(curVertEdgePixIdx);
+    idx = ismember(imVertWideL, vLabels(vLabels>0));
+    curVertEdgeLabels = imVertLabel(idx); 
     
     % vote majority
     Nodes(i).horiColor = mode(curHoriEdgeLabels);
