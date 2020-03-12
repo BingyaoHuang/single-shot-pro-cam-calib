@@ -207,11 +207,65 @@ Nodes = ImgProc.correctColors(Nodes);
 Nodes = ImgProc.decodeDebruijn(Nodes, prjW, prjH);
 [camPoints, prjPoints] = extractNodesPosition(Nodes);
 
+% fill missing coordinates by majority vote on the same stripe
+for i = 1:numel(Nodes)   
+    % find all nodes on the same horizontal line
+    Nnb = ImgProc.findNbInDir(Nodes, i, 'N', 0);
+    Snb = ImgProc.findNbInDir(Nodes, i, 'S', 0);
+    Enb = ImgProc.findNbInDir(Nodes, i, 'E', 0);
+    Wnb = ImgProc.findNbInDir(Nodes, i, 'W', 0);
 
+    % activeRow
+    hNodeIdx = [flip(Wnb), i, Enb];
+    activeRow = [Nodes(hNodeIdx).activeRow];
+    if(nnz(activeRow > 0))
+        [Nodes(hNodeIdx).activeRow] = deal(mode(activeRow(activeRow > 0)));
+    end
+
+    % activeCol
+    vNodeIdx = [flip(Nnb), i, Snb];
+    activeCol = [Nodes(vNodeIdx).activeCol];
+    if(nnz(activeCol > 0))
+        [Nodes(vNodeIdx).activeCol] = deal(mode(activeCol(activeCol > 0)));
+    end
+end
+
+% fill missing node prj coordinates using linear interpolation
+for i = 1:numel(Nodes)
+    % find all nodes on the same horizontal line
+    Nnb = ImgProc.findNbInDir(Nodes, i, 'N',0);
+    Snb = ImgProc.findNbInDir(Nodes, i, 'S',0);
+    Enb = ImgProc.findNbInDir(Nodes, i, 'E',0);
+    Wnb = ImgProc.findNbInDir(Nodes, i, 'W',0);
+
+    hNodeIdx = [flip(Wnb), i, Enb];
+%     hStripes = [Nodes(hNodeIdx).hEdges];
+
+    vNodeIdx = [flip(Nnb), i, Snb];
+%     vStripes = [Nodes(vNodeIdx).vEdges];
+
+    % fill -1 with linear interpolation
+    
+    % horizontal stripes
+    vecCol = [Nodes(hNodeIdx).activeCol];
+    vecCol = num2cell(fillmissing(vecCol, 'linear', 'MissingLocations', vecCol<0));
+    [Nodes(hNodeIdx).activeCol] = vecCol{:};
+    
+    vecRow = [Nodes(hNodeIdx).activeRow];
+    vecRow = num2cell(fillmissing(vecRow, 'linear', 'MissingLocations', vecRow<0));
+    [Nodes(hNodeIdx).activeRow] = vecRow{:};
+    
+    % vertical stripes
+    vecRow = [Nodes(vNodeIdx).activeRow];
+    vecRow = num2cell(fillmissing(vecRow, 'linear', 'MissingLocations', vecRow<0));
+    [Nodes(vNodeIdx).activeRow] = vecRow{:};   
+    
+    vecCol = [Nodes(vNodeIdx).activeCol];
+    vecCol = num2cell(fillmissing(vecCol, 'linear', 'MissingLocations', vecCol<0));
+    [Nodes(vNodeIdx).activeCol] = vecCol{:};
 end
 
 %% Local functions
-
 function [camPoints, prjPoints, validNodeIdx] = extractNodesPosition(Nodes)
 
 validNodes = [Nodes.activeCol] > 0 & [Nodes.activeRow] > 0;
