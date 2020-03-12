@@ -26,7 +26,7 @@ function Nodes = decodeDebruijn(Nodes, prjW, prjH)
 %%
 
 aspect = prjW / prjH;
-imgW = 1920;
+imgW = 1920; % default SL pattern width
 imgH = floor(imgW / aspect);
 
 if(prjW > imgW)

@@ -130,29 +130,17 @@ end
 Nodes = ImgProc.traverseGrid(Nodes, Edges);
 
 %% step 8. get horizontal and vertical edges
-horiIdx = [Edges.isH] == 1;
-vertIdx = ~horiIdx;
-
-horiEdges = Edges(horiIdx);
-vertEdges = Edges(vertIdx);
+horiEdges = Edges([Edges.isH] == 1);
+vertEdges = Edges([Edges.isH] == 0);
 
 imHoriEdge = false(imSize);
 imHoriEdge(vertcat(horiEdges.PixelIdxList)) = 1;
-% figure;
-% imshow(imHoriEdge);
-% title('horizontal edges');
 
 imVertEdge = false(imSize);
 imVertEdge(vertcat(vertEdges.PixelIdxList)) = 1;
-% figure;
-% imshow(imVertEdge);
-% title('vertical edges');
 
 %% step 9. read color grid and convert RGB to labels
 [imAllLabel, imHoriLabel, imVertLabel] = ImgProc.colorToLabel(imColorGridMasked, imNode, imHoriEdge, imVertEdge, verbose);
-% figure;
-% imshowpair(imColorGrid, imAllLabel,'Montage');
-% title('color grid and all labels');
 
 %% step 10. assign each node horizontal and vertical color labels
 [Nodes(:).horiColor] = deal(-1);
@@ -282,7 +270,7 @@ camPoints = vertcat(Nodes(validNodes).Centroid);
 prjPoints = [[Nodes(validNodes).activeCol]', [Nodes(validNodes).activeRow]'];
 end
 
-% convert skeleton image to node, edge endpoints images
+%% convert skeleton image to node, edge endpoints images
 function [imEdges, imNodes, imEndPoints, imNeighbor] = extractStructs(imSkele)
 imNeighbor = imfilter(double(imSkele), [1, 1, 1; 1, 0, 1; 1, 1, 1]);
 imNeighbor = imNeighbor .* imSkele;
@@ -291,5 +279,5 @@ imEdges = imNeighbor == 2;
 imEndPoints = imNeighbor == 1;
 imNodes = logical(imSkele - imEdges - imEndPoints);
 end
+end
 
-% also find edge's 3d coord
