@@ -34,7 +34,7 @@ imgIdx = app.reconOption.sets;
 stereoParams = app.stereoParams;
 
 % debug option, enable for visuals/figures
-verbose = app.calibOption.verbose;
+verbose = app.reconOption.verbose;
 
 % start waitbar
 msg = 'Extracting structured light nodes from camera image...';
@@ -60,18 +60,31 @@ camH = calibInfo.camH;
 prjW = calibInfo.prjW;
 prjH = calibInfo.prjH;
 
-if(~app.calibOption.useExistingMask)
+imgName = app.ImageListBox.Value;
+imMaskName = fullfile(dataPath, ['objectROI', imgName{1}(end-1:end), '.png']);
+
+if(app.reconOption.useExistingMask)
+    if(exist(imMaskName, 'file'))
+        imMask = imread(imMaskName);
+    else
+        uialert(app.ProCamCalibUIFigure, [imMaskName, ' does not exist. Check off Use Existing Mask!'], 'File not found');
+        close(waitBarHandle);
+        return;
+    end
+else
     % manually select roi to be reconstructed
     msg = 'Waiting user to draw the region to be reconstructed...';
     waitbar(0.4, waitBarHandle, msg);
     disp(msg);
     app.ManualSegButton.ButtonPushedFcn(app, [])
+    imMask = imread(imMaskName);
 end
 
 % extract matched color grid Nodes' coords in camera and projector images
 msg = 'Matching structured light pattern...';
 waitbar(0.45, waitBarHandle, msg);
 disp(msg);
+
 [camNodes, prjNodes, Nodes, Edges] = ImgProc.getMatchedNodes(imLightName, imColorName, [], prjW, prjH, verbose);
 
 %% triangulate nodes
@@ -114,145 +127,75 @@ end
 nodePts3d = Reconstruct.triangulatePoints(camK, prjK, R, T, camNodesUndistort, prjNodesUndistort);
 
 % visualize reconstructed 3d Nodes
-Reconstruct.visualizePts3d(nodePts3d, R, T, 'Node points');
+Reconstruct.visualizePts3d(nodePts3d, R, T, 'Node points only');
 
 %% triangulate Edges
 msg = 'Triangulating edge coordinates...';
 waitbar(0.7, waitBarHandle, msg);
 disp(msg);
 
-%% reconstruct edge points using ray-plane intersection (assume no projector distortion, and it does not work well)
-if(0)
-    validNodes = Nodes([Nodes.activeCol] > 0 & [Nodes.activeRow] > 0);
-    validNodes = validNodes(inlierIdx); % mis-decoded nodes have wrong edge lables and they should not pass epipolar test...
+% reconstruct edge points under projector distortion assumption and it works well
+if(app.reconOption.useEdge)
+    camEdges = [];
+    prjEdges = [];
     
-    prjOrg = (-R'*T)';
-    edgePts3d = [];
-    
-    usedEdgeIdx = [];
-    for i=1:length(validNodes)
-        curNode = validNodes(i);
-        
-        for j = 1:2
-            if(j == 1)
-                % horizontal edge in projector image space
-                newEdgeIdx = ~ismember(curNode.hEdges, usedEdgeIdx);
-                if(all(~newEdgeIdx))
-                    continue
-                end
-                
-                usedEdgeIdx = [usedEdgeIdx, curNode.hEdges(newEdgeIdx)];
-                
-                edgePixelIdx = vertcat(Edges(curNode.hEdges(newEdgeIdx)).PixelIdxList);
-                c1 = [curNode.activeCol+1, curNode.activeRow];
-                c2 = [curNode.activeCol-1, curNode.activeRow];
-            else
-                % vertical edge in projector image space
-                newEdgeIdx = ~ismember(curNode.vEdges, usedEdgeIdx);
-                if(all(~newEdgeIdx))
-                    continue
-                end
-                
-                usedEdgeIdx = [usedEdgeIdx, curNode.vEdges(newEdgeIdx)];
-                edgePixelIdx = vertcat(Edges(curNode.vEdges(newEdgeIdx)).PixelIdxList);
-                c1 = [curNode.activeCol, curNode.activeRow+1];
-                c2 = [curNode.activeCol, curNode.activeRow-1];
-            end
-            
-            % undistort and convert to homogenious coord
-            c1 = [ImgProc.cvUndistortPoints(c1, prjK, prjKc), 1];
-            c2 = [ImgProc.cvUndistortPoints(c2, prjK, prjKc), 1];
-            
-            % unproject to 3d
-            pts3d = (R' * (prjK \ [c1;c2]' - T))';
-            
-            % plane equation:Ax+By+Cz+1=0; solving for ABC need 3 points.
-            % Ax = b, solve for x, where x = [A,B,C]'
-            planeParams = [prjOrg;pts3d]\(-ones(3,1));
-            
-            [rows, cols] = ind2sub([camH,camW], edgePixelIdx);
-            camEdgesUndistort = ImgProc.cvUndistortPoints([cols,rows], camK, camKc);
-            %     camEdgesUndistort = [cols,rows];
-            
-            Z = -1./(planeParams(1)*(camEdgesUndistort(:,1) -camK(1,3)) /camK(1,1)+planeParams(2)*(camEdgesUndistort(:,2)-camK(2,3))/camK(2,2)+planeParams(3));
-            X = Z.*(camEdgesUndistort(:,1) -camK(1,3))/camK(1,1);
-            Y = Z.*(camEdgesUndistort(:,2) -camK(2,3))/camK(2,2);
-            
-            edgePts3d = [edgePts3d;[X,Y,Z]];
-        end
-    end
-    
-    % visualize
-    Reconstruct.visualizePts3d(edgePts3d, R, T, 'Edge points');
-    Reconstruct.visualizePts3d([nodePts3d; edgePts3d], R, T, 'Node and Edge points');
-end
-
-%% reconstruct edge points under projector distortion assumption and it works well
-camEdges = [];
-prjEdges = [];
-validNodesIdx = find([Nodes.activeCol] > 0 & [Nodes.activeRow] > 0);
-validNodesIdx = validNodesIdx(inlierIdx);
-
-for i=1:length(validNodesIdx)
-    curNode = Nodes(validNodesIdx(i));
-    
-    for j = 1:length(curNode.edges)
-        curEdge = Edges(curNode.edges(j));
-        otherNodeIdx = setdiff(curEdge.nodes, validNodesIdx(i));
-        if(~ismember(otherNodeIdx, validNodesIdx))
+    for i=1:numel(Edges)
+        curEdge = Edges(i);
+        if(numel(curEdge.nodes) ~= 2)
             continue;
         end
         
-        otherNode = Nodes(setdiff(curEdge.nodes, validNodesIdx(i)));
+        node1 = Nodes(curEdge.nodes(1));
+        node2 = Nodes(curEdge.nodes(2));
+        
+        p1 = [node1.activeCol, node1.activeRow];
+        p2 = [node2.activeCol, node2.activeRow];
+        
+        if(any( [p1, p2] < 0))
+            continue;
+        end
+        
+        % two nodes's cam coords
+        c1 = ImgProc.cvUndistortPoints(node1.Centroid, camK, camKc);
+        c2 = ImgProc.cvUndistortPoints(node2.Centroid, camK, camKc);
+        
+        % two nodes's prj coords, (should be undistorted)
+        p1 = ImgProc.cvUndistortPoints(p1, prjK, prjKc);
+        p2 = ImgProc.cvUndistortPoints(p2, prjK, prjKc);
+        
+        % edge points' row and col
+        [rows, cols] = ind2sub([camH, camW], curEdge.PixelIdxList);
         
         % linear interpolate edge pixels' projector coord
-        [rows, cols] = ind2sub([camH,camW], curEdge.PixelIdxList);
-        
-        % undistort cam edge points
-        edgePts2d = ImgProc.cvUndistortPoints([cols,rows], camK, camKc);
-        rows = edgePts2d(:, 2);
-        cols = edgePts2d(:, 1);
-              
-        if (isempty(otherNode))
-           continue;
-        end
-        
-        % two cam nodes coords
-        c1 = ImgProc.cvUndistortPoints(otherNode.Centroid, camK, camKc);
-        c2 = ImgProc.cvUndistortPoints(curNode.Centroid, camK, camKc);
-        
         for k = 1:length(rows)
-            d1 = norm([cols(k), rows(k)] - c1);
-            d2 = norm([cols(k), rows(k)] - c2);
+            curCamEdgePt2d = [cols(k), rows(k)];
+            %             d1 = abs(curCamEdgePt2d - c1);
+            %             d2 = abs(curCamEdgePt2d - c2);
+            %             s = d1./(d1+d2);
+            %             curPrjEdgePt2d = (1-s).*p1 + s.*p2;
+            d1 = norm(curCamEdgePt2d - c1);
+            d2 = norm(curCamEdgePt2d - c2);
             s = d1/(d1+d2);
-            
-            % projector points also should be undistorted!
-            p1 = [ImgProc.cvUndistortPoints([otherNode.activeCol, otherNode.activeRow], prjK, prjKc), 1];
-            p2 = [ImgProc.cvUndistortPoints([curNode.activeCol, curNode.activeRow], prjK, prjKc), 1];
-            curEdgePts2d = (1-s)*p1 + s*p2;
-            curEdgePts2d = curEdgePts2d(1:2); % convert back to non-homogenious
-            prjEdges = [prjEdges; curEdgePts2d];
-            camEdges = [camEdges; [cols(k), rows(k)]];
+            curPrjEdgePt2d = (1-s)*p1 + s*p2;
+            curPrjEdgePt2d = curPrjEdgePt2d(1:2); % convert back to non-homogenious
+            prjEdges = [prjEdges; curPrjEdgePt2d];
+            camEdges = [camEdges; curCamEdgePt2d];
         end
     end
-end
-
-% camEdgesUndistort = ImgProc.cvUndistortPoints(camEdges, camK, camKc);
-% prjEdgesUndistort = ImgProc.cvUndistortPoints(prjEdges, prjK, prjKc);
-camEdgesUndistort = camEdges;
-prjEdgesUndistort = prjEdges;
-
-% remove epipolar outliers
-[inlierIdx, d] = Reconstruct.findEpipolarInliers(F, camEdgesUndistort, prjEdgesUndistort, app.reconOption.epiThresh, verbose);
-camEdgesUndistort = camEdgesUndistort(inlierIdx,:);
-prjEdgesUndistort = prjEdgesUndistort(inlierIdx,:);
-
-% triangulate
-edgePts3d = Reconstruct.triangulatePoints(camK, prjK, R, T, camEdgesUndistort, prjEdgesUndistort);
-
-% visualize
-if(verbose)
-    Reconstruct.visualizePts3d([nodePts3d; edgePts3d], R, T, 'Reconstructed Nodes and Edges points');
+    
+    camEdgesUndistort = camEdges;
+    prjEdgesUndistort = prjEdges;
+    
+    % remove epipolar outliers
+    [inlierIdx, d] = Reconstruct.findEpipolarInliers(F, camEdgesUndistort, prjEdgesUndistort, app.reconOption.epiThresh, verbose);
+    camEdgesUndistort = camEdgesUndistort(inlierIdx,:);
+    prjEdgesUndistort = prjEdgesUndistort(inlierIdx,:);
+    
+    % triangulate
+    edgePts3d = Reconstruct.triangulatePoints(camK, prjK, R, T, camEdgesUndistort, prjEdgesUndistort);
+    
+    % visualize
+    Reconstruct.visualizePts3d([nodePts3d; edgePts3d], R, T, 'Both Node and Edge points');
 end
 
 %% interpolate point cloud
@@ -260,12 +203,10 @@ msg = 'Interpolating point cloud...';
 waitbar(0.9, waitBarHandle, msg);
 disp(msg);
 
-imgName = app.ImageListBox.Value;
-imMask = imread(fullfile(dataPath, ['objectROI', imgName{1}(end-1:end), '.png']));
 imROI = ImgProc.maskImage(imread(imLightName), imMask);
 
-% ptCloudInterp = Reconstruct.interpolatePtCloud(camK, camKc, pointCloud(nodePts3d), imROI, imMask, verbose);
-ptCloudInterp = Reconstruct.interpolatePtCloud(camK, camKc, pointCloud([nodePts3d; edgePts3d]), imROI, imMask, verbose);
+ptCloudInterp = Reconstruct.interpolatePtCloud(camK, camKc, pointCloud(nodePts3d), imROI, imMask, verbose);
+% ptCloudInterp = Reconstruct.interpolatePtCloud(camK, camKc, pointCloud([nodePts3d; edgePts3d]), imROI, imMask, verbose);
 
 figure;
 h = pcshow(ptCloudInterp, 'MarkerSize', 150);
