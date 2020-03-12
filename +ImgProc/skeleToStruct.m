@@ -54,55 +54,53 @@ Nodes = regionprops(imNode,'PixelIdxList', 'area', 'centroid');
 % assign edges for node i and also assign nodes for the corresponding
 % edges
 imSize = size(imEdge);
-numNodes = numel(Nodes);
-for i = 1:numNodes
-    
+
+for i = 1:numel(Nodes)
     % get all pixel indices in this node
     nodePixelIdx = Nodes(i).PixelIdxList;
     
-    % for each pixel index in this node
-    for k=1:numel(nodePixelIdx)
-        % convert pixel indices to subscripts
-        [row, col] = ind2sub(imSize, nodePixelIdx(k));
+    % convert pixel indices to subscripts
+    [rows, cols] = ind2sub(imSize, nodePixelIdx);
+    
+    % search 3x3 neighborhood if node pixels and try to find an edge
+    [r, c] = arrayfun(@(r, c) meshgrid(r-1:r+1, c-1:c+1), rows, cols, 'UniformOutput', false);
+    r = reshape(cell2mat(r), [], 1);
+    c = reshape(cell2mat(c), [], 1);
+    neighbors = setdiff(sub2ind(imSize, r(:), c(:)), Nodes(i).PixelIdxList);
+    
+    % use the neighbors indices to get Edge ids from imEdgeLabel
+    matchEdges = imEdgeLabel(neighbors);
+    matchEdges = unique(matchEdges(matchEdges ~= 0));
+    
+    % for each edge we found in the neighborhood of this node
+    for j = 1:numel(matchEdges)
+        edgeId = matchEdges(j);
         
-        % search 3x3x3 neighborhood and try to find an edge
-        [r, c] = meshgrid(row-1:row+1, col-1:col+1);
-        neighbors = sub2ind(imSize, r(:), c(:));
+        % we add the current node's index to Edge's nodes list
+        Edges(edgeId).nodes = [Edges(edgeId).nodes, i];  % may have self loops
         
-        % remove the node pixels from the test for speed up
-        neighbors = setdiff(neighbors,Nodes(i).PixelIdxList);
+        if(numel(Edges(edgeId).nodes) > 2)
+            dbstop in ImgProc.skeleToStruct
+        end
         
-        % use the neighbors indices to get Edge ids from imEdgeLabel
-        matchEdges = imEdgeLabel(neighbors);
-        matchEdges = unique(matchEdges(matchEdges~=0));
-        
-        % for each edge we found in the neighborhood of this node
-        for j = 1:numel(matchEdges)
-            edgeId = matchEdges(j);
-            
-            % we pass the current node's index to Edge's nodes list
-            Edges(edgeId).nodes = [Edges(edgeId).nodes, i];  % may have self loops
-            Edges(edgeId).end = [Edges(edgeId).end, nodePixelIdx(k)];
-            if(numel(Edges(edgeId).nodes) > 2)
-                dbstop in ImgProc.skeleToStruct
-            end
-            
-            % we also pass the current edge's index to Node's edges list
-            Nodes(i).edges = unique([Nodes(i).edges, edgeId]);
-            
-            % assign each node vertical and horizontal Edge id
-            orientation = Edges(edgeId).Orientation;
-            if (orientation > -45 && orientation < 45)
-                Edges(edgeId).isH = 1;
-                hEdges = Nodes(i).hEdges;
-                hEdges = unique([hEdges, edgeId]);
-                Nodes(i).hEdges = hEdges(hEdges >0);
-            else
-                Edges(edgeId).isH = 0;
-                vEdges = Nodes(i).vEdges;
-                vEdges = unique([vEdges, edgeId]);
-                Nodes(i).vEdges = vEdges(vEdges >0);
-            end
+        % we also add the current edge's index to Node's edges list
+%         Nodes(i).edges = unique([Nodes(i).edges, edgeId]);
+        Nodes(i).edges = [Nodes(i).edges, edgeId];
+
+        % assign each node vertical and horizontal Edge id
+        orientation = Edges(edgeId).Orientation;
+        if (orientation >= -45 && orientation <= 45)
+            Edges(edgeId).isH = 1;
+            hEdges = Nodes(i).hEdges;
+%             hEdges = unique([hEdges, edgeId]);
+            hEdges = [hEdges, edgeId];
+            Nodes(i).hEdges = hEdges(hEdges >0);
+        else
+            Edges(edgeId).isH = 0;
+            vEdges = Nodes(i).vEdges;
+%             vEdges = unique([vEdges, edgeId]);
+            vEdges = [vEdges, edgeId];
+            Nodes(i).vEdges = vEdges(vEdges >0);
         end
     end
 end
