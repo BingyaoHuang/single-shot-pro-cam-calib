@@ -43,78 +43,85 @@ end
 %% Step 4. Pre-extract Nodes and Edges structures for cleaning
 [Edges, Nodes] = ImgProc.skeleToStruct(imNode, imEdge);
 
-% get rid unnormally long edges
-    hEdge = Edges(logical([Edges.isH]));
-    hEdge = hEdge([hEdge.Area] < mean([hEdge.Area]) + 2*std([hEdge.Area]));
-
-    vEdge = Edges(~logical([Edges.isH]));
-    vEdge = vEdge([vEdge.Area] < mean([vEdge.Area]) + 2*std([vEdge.Area]));
-
-    Edges = [hEdge; vEdge];
-
-% find isolated edges (area == 1) and remove those edges from imEdge
+%% find isolated edges and remove those edges from imEdge
 % and add to imNodes
-labels = [Edges.Area] == 1;
-isoEdges = Edges(labels);
-vecNumNodes = cellfun(@numel, {isoEdges.nodes});
-leafEdgeIdx = vecNumNodes == 1;
-nodeEdgeIdx = vecNumNodes == 2;
-
-imEdge([isoEdges(nodeEdgeIdx).PixelIdxList]) = 0;
-imNode([isoEdges(nodeEdgeIdx).PixelIdxList]) = 1;
-
-
-% Extract Nodes and Edges from cleaned imEdge and imNode
-[Edges, Nodes] = ImgProc.skeleToStruct(imNode, imEdge);
-numNodes = numel(Nodes);
-numEdges = numel(Edges);
-
-% imMix = imEdge + imNode*3;
-% figure;
-% title('imMix - Edges and Nodes');
-% imagesc(imMix);
-
-%% step 5. create labeled edge and node images for debugging
-
-if (verbose)   
-%     imEdgeLabel = zeros(size(imNode), 'uint16');
-%     imNodeLabel = zeros(size(imNode), 'uint16');
-%     
-%     for i = 1:numEdges
-%         imEdgeLabel(Edges(i).PixelIdxList) = i;
-%     end
-%     
-%     for i = 1:numNodes
-%         imNodeLabel(Nodes(i).PixelIdxList) = i;
-%     end
-%     
-%     subplot(2,2,3);drawnow
-%     title('imEdgeLabel - Labeled Edges');
-%     imagesc(imEdgeLabel);
-%     caxis([0 0.1]);
-%     myMap = [0, 0, 0; 1, 1, 1];
-%     colormap(myMap);
-%     
-%     subplot(2,2,4);drawnow
-%     title('imNodeLabel - Labeled Nodes');
-%     imagesc(imNodeLabel);
-%     caxis([0 0.1]);
-%     myMap = [0, 0, 0; 1, 1, 1];
-%     colormap(myMap);   
+% iso-edge def: 1 pixel long and has two nodes
+edgeIdx = [Edges.Area] == 1 & cellfun(@numel, {Edges.nodes}) == 2;
+if(nnz(edgeIdx))
+    isoEdges = Edges(edgeIdx);
+    imEdge([isoEdges.PixelIdxList]) = 0;
+    imNode([isoEdges.PixelIdxList]) = 1;
+    [Edges, Nodes] = ImgProc.skeleToStruct(imNode, imEdge);
 end
 
-%% step 6. create the ajacency matrix and graph from Edges and Nodes
-A = zeros(numNodes, numNodes);
+% get rid of Nodes that have more than 4 edges
+nodeIdx = cellfun(@numel, {Nodes.edges}) > 4;
+if(nnz(nodeIdx))
+    imNode(vertcat(Nodes(nodeIdx).PixelIdxList)) = 0;
+    imEdge(vertcat(Edges([Nodes(nodeIdx).edges]).PixelIdxList)) = 0;
+    [Edges, Nodes] = ImgProc.skeleToStruct(imNode, imEdge);
+end
+
+% correct Nodes edge orientations (slow, only needed for 3D reconstruction)
+for i = 1:numel(Nodes)
+    if(numel(Nodes(i).vEdges) > 2)
+        myEdgeIdx = Nodes(i).edges;
+        [~, idx] = sort(abs([Edges(myEdgeIdx).Orientation]), 'descend');
+        [Edges(myEdgeIdx(idx(1:2))).isH] = deal(0);
+        [Edges(myEdgeIdx(idx(3:end))).isH] = deal(1);
+        Nodes(i).vEdges = myEdgeIdx(idx(1:2));
+        Nodes(i).hEdges = myEdgeIdx(idx(3:end));      
+    elseif (numel(Nodes(i).hEdges) > 2)
+        myEdgeIdx = Nodes(i).edges;
+        [~, idx] = sort(abs([Edges(myEdgeIdx).Orientation]), 'ascend');
+        [Edges(myEdgeIdx(idx(1:2))).isH] = deal(1);
+        [Edges(myEdgeIdx(idx(3:end))).isH] = deal(0);
+        Nodes(i).hEdges = myEdgeIdx(idx(1:2));
+        Nodes(i).vEdges = myEdgeIdx(idx(3:end));
+    end
+end
+
+% get rid unnormally long edges
+if(0)
+    hEdge = Edges(logical([Edges.isH]));
+    hEdge = hEdge([hEdge.Area] < mean([hEdge.Area]) + 2*std([hEdge.Area]));
+    vEdge = Edges(~logical([Edges.isH]));
+    vEdge = vEdge([vEdge.Area] < mean([vEdge.Area]) + 2*std([vEdge.Area]));
+    Edges = [hEdge; vEdge];
+end
+
+% convert structure back to bw images
+[imNode, imEdge, imMix] = ImgProc.structToSkel(Nodes, Edges, size(imSkele));
+
+%% step 5. create labeled edge and node images for debugging
+if (verbose)   
+    numNodes = numel(Nodes);
+    numEdges = numel(Edges);
+    imEdgeLabel = zeros(size(imNode), 'uint16');
+    imNodeLabel = zeros(size(imNode), 'uint16');
     
     for i = 1:numEdges
-    curEdge = Edges(i);
-    
-    if (numel(curEdge.nodes) == 2)% ignore end point and end edge
-        edgeLength = numel(curEdge.PixelIdxList);
-        A(curEdge.nodes(1), curEdge.nodes(2)) = edgeLength;
-        A(curEdge.nodes(2), curEdge.nodes(1)) = edgeLength;
+        imEdgeLabel(Edges(i).PixelIdxList) = i;
     end
     
+    for i = 1:numNodes
+        imNodeLabel(Nodes(i).PixelIdxList) = i;
+    end
+    
+    figure;
+    subplot(1,2,1);drawnow
+    title('imEdgeLabel - Labeled Edges');
+    imagesc(imEdgeLabel); impixelinfo;
+    caxis([0 0.1]);
+    myMap = [0, 0, 0; 1, 1, 1];
+    colormap(myMap);
+    
+    subplot(1,2,2);drawnow
+    title('imNodeLabel - Labeled Nodes');
+    imagesc(imNodeLabel);
+    caxis([0 0.1]);
+    myMap = [0, 0, 0; 1, 1, 1];
+    colormap(myMap);  impixelinfo;
 end
 
 %% step 6. create the ajacency matrix and graph from Edges and Nodes
