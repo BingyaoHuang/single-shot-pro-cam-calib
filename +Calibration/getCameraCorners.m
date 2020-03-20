@@ -27,8 +27,21 @@ function [camCorners, usedImIdx] = getCameraCorners(calibInfo)
 imLightNames = ImgProc.getImageNames(calibInfo.path, 'light');
 imLightNames = imLightNames(calibInfo.sets);
 
+% resize image to width = 640, since MATLAB detectCheckerboardPoints may fail on large images.
+w = 640;
+imCheckerboard = readAllImgs(imLightNames);
+
+if(size(imCheckerboard, 2) > w)
+    imCheckerboardSmall = imresize(imCheckerboard, [nan, w]);
+else
+    imCheckerboardSmall = imCheckerboard;
+end
+
 % extract checkerboard corners
-[camCornersTemp, boardSize, usedImIdx] = detectCheckerboardPoints(imLightNames);
+[camCornersTemp, boardSize, usedImIdx] = detectCheckerboardPoints(imCheckerboardSmall);
+
+% scale checkerboard coordinates to the orginal size
+camCornersTemp = camCornersTemp * size(imCheckerboard, 2) / w;
 
 if(nnz(boardSize == calibInfo.boardSize) < 2)
     error('Extracted checkerboard size does not match calib-info.yml, please check calib-info.yml and checkerboard image');
