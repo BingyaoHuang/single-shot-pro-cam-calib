@@ -28,10 +28,6 @@ if(nargin < 5)
     verbose = false;
 end
 
-if(verbose)
-    figure('Name', 'colorToLabel', 'units','normalized','outerposition',[0 0  1  1]);
-    disp('converting color grid image to labeled images')
-end
 
 %% Create wide imNode, imHoriEdge and imVertEdge for color masking
 imHoriRGB = maskColorGrid(imColorGrid, imNode, imHoriEdge);
@@ -42,7 +38,7 @@ imVertRGB = maskColorGrid(imColorGrid, imNode, imVertEdge);
 [imVertLabel, imVertRecv] = clusterColors(imVertRGB, 0);
 
 if(verbose)
-    figure;
+    figure('Name', 'colorToLabel', 'units','normalized','outerposition',[0 0  1  1]);
     subplot(2,1,1);
     imshowpair(imHoriRGB, imHoriRecv, 'Montage');
     title('[horizontal] Original color grid and detected labels in pseudocolor');

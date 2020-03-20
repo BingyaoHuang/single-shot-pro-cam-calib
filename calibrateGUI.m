@@ -45,14 +45,6 @@ useParallel = app.calibOption.useParallel;
 % distortion model (has distortion or not)
 useDistortion = app.calibOption.useDistortion;
 
-% checkerboard corners will be extracted and saved by the script.
-% If no entry in calib-info.yml file has been modified since the last
-% calibration, you can set the two flags to true to speed up recalibration.
-% But you must set them to false if you change sets, camera, projector or
-% checkerobard settings in calib-info.yml.
-useExistingCamCorners = 0;
-useExistingPrjCorners = 0;
-
 format short
 
 % start waitbar
@@ -60,25 +52,20 @@ msg = 'Extracting checkerboard corners from camera image...';
 waitBarHandle = waitbar(0, msg, 'Name', 'Calibrating pro-cam...');
 set(findall(waitBarHandle),'Units', 'normalized');
 waitBarHandle.Position(3) = 0.3;
+
 %% Step 1: Get checkerboard corners from camera image
-if (~useExistingCamCorners)
-    disp(msg);
-    
-    % 1. Get the checkerboard points for the selected calibInfo.sets from camera image
-    [camCorners, usedImIdx] = Calibration.getCameraCorners(calibInfo);
-    
-    % 2. Save the camera corners, and load them to eliminate rounding errors.
-    Calibration.saveCorners(camCorners, 'cam_', cornerDir, calibInfo.sets, usedImIdx);
-    camCorners = camCorners(:, :, usedImIdx);
-    
-    % 3. Eliminate any potentially unused calibInfo.sets during checkerboard detection
-    calibInfo.sets = calibInfo.sets(usedImIdx);
-    calibInfo.numSets = numel(calibInfo.sets);
-else
-    % Read camCorners
-    disp('Reading existing camera corners...');
-    camCorners = Calibration.readCorners('cam_', cornerDir, calibInfo);
-end
+disp(msg);
+
+% 1. Get the checkerboard points for the selected calibInfo.sets from camera image
+[camCorners, usedImIdx] = Calibration.getCameraCorners(calibInfo);
+
+% 2. Save the camera corners, and load them to eliminate rounding errors.
+Calibration.saveCorners(camCorners, 'cam_', cornerDir, calibInfo.sets, usedImIdx);
+camCorners = camCorners(:, :, usedImIdx);
+
+% 3. Eliminate any potentially unused calibInfo.sets during checkerboard detection
+calibInfo.sets = calibInfo.sets(usedImIdx);
+calibInfo.numSets = numel(calibInfo.sets);
 
 %% Step 2: Calibrate camera, (skip 1 if using existing camera corners)
 msg = 'Calibrating camera using checkerboard corners...';
@@ -95,23 +82,15 @@ camCornersCell = squeeze(mat2cell(camCorners, calibInfo.numCorners, 2, ones(1, c
 camParams = Calibration.calibrateInitGuess(modelCornersCell, camCornersCell, calibInfo);
 
 %% Step 3: Calculate projector nodes (Xp) for proposed method
+% 1. Get SL nodes from specified image sets
+msg = 'Extracting and saving grid nodes and warped projector corners...';
+waitbar(0.2, waitBarHandle, msg);
+disp(msg);
 
-if (~useExistingPrjCorners)
-    % 1. Get SL nodes from specified image sets
-    msg = 'Extracting and saving grid nodes and warped projector corners...';
-    waitbar(0.2, waitBarHandle, msg);
-    disp(msg);
-    
-    [nodesCell, ~] = Calibration.getNodesAndPrjCorners(calibInfo, camParams, camCorners, verbose, useParallel);
-    
-    % 2. Save projector points and node pairs
-    cv.FileStorage(fullfile(calibInfo.path, 'nodePairs.yml'), nodesCell);
-else
-    msg = 'Reading existing node coordinates...';
-    waitbar(0.2, waitBarHandle, msg);
-    disp(msg);
-    nodesCell = cv.FileStorage(fullfile(calibInfo.path, 'nodePairs.yml')).nodePairs;
-end
+[nodesCell, ~] = Calibration.getNodesAndPrjCorners(calibInfo, camParams, camCorners, verbose, useParallel);
+
+% 2. Save projector points and node pairs
+cv.FileStorage(fullfile(calibInfo.path, 'nodePairs.yml'), nodesCell);
 
 %% Step 4. Warp node points (Xc) in camera image to model space (Xm)
 msg = 'Warpping nodes to model space (Xc to Xm) for proposed method...';
