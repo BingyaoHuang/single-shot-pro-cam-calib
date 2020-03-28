@@ -16,16 +16,20 @@ For more info please refer to our [paper][1]. **To reproduce paper results pleas
 
 ![calib](doc/reconstruct.png)
 
-
-## Required Software & Packages
-* MATLAB 2018b
+## Usage
+#### Required Software & Packages
+* MATLAB >= 2018b
 * [mexOpenCV v3.3.0][2]
 
-## Usage
-### 
+#### Build from source
+1. Clone this repo and install mexOpenCV.
+3. Run `calibApp.mlapp` to start the App.
 
+#### Windows binary
+1. Check [release](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/releases) for Windows installer.
+
+## Tutorial
 1. Watch a short video tutorial [here][6].
-2. Run `calibApp.mlapp` to start the App.
 
 ----
 ### Calibrate your own camera-projector pair using our GUI
