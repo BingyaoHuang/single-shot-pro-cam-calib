@@ -11,44 +11,50 @@ Highlights:
 
 For more info please refer to our [paper][1]. **To reproduce paper results please refer to [ismar18][5] branch.**
 
+**Updated 04/02/2020: Windows 64-bit executable released, no need to install MATLAB or OpenCV**. See [Windows 64-bit executable](#windows-64-bit-executable-matlab-and-opencv-not-required) below.
 
-**Updated 04/03/2019: 3D reconstruction feature released**. Click `Calibration` tab and load a calibration yml file by clicking `Load Calibration`, then select a set in the `Images` list and click `Reconstruct`.
-
-![calib](doc/reconstruct.png)
 
 ## Usage
-#### Required Software & Packages
-* MATLAB >= 2018b
-* [mexOpenCV v3.3.0][2]
 
 #### Build from source
-1. Clone this repo and install mexOpenCV.
-3. Run `calibApp.mlapp` to start the App.
+1. Install MATLAB >= 2018b.
+2. Install [mexOpenCV v3.3.0][2]
+3. Clone this repo and run `calibApp.mlapp` to start the App.
 
-#### Windows binary
-1. Check [release](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/releases) for Windows installer.
+#### Windows 64-bit executable (MATLAB and OpenCV not required)
+1. Install [MATLAB Runtime >= 2018b for Windows 64-bit](https://www.mathworks.com/products/compiler/matlab-runtime.html).
+2. Download and extract [ProCamCalib_v0.1.zip](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/releases/download/v0.1/ProCamCalib_v0.1.zip).
+3. Run `ProCamCalib.exe`.
 
 ## Tutorial
 1. Watch a short video tutorial [here][6].
+2. Note our method works best for camera resolution <=640x480 and projector resolution <=1920x1080. You can resize the camera image to wdith=640 for the best quality and speed.
 
 ----
-### Calibrate your own camera-projector pair using our GUI
+## Calibration
 
 ![calib](doc/capture.png)
 
 1. Print a checkerboard pattern and glue it to a white board. Make sure the checkerboard pattern is at the center of the white board and its width/height is around **1/3** of the white board's width/height.
 2. Place the white board (with checkerboard glued to it) in front of camera and projector.
-3. Run `calibApp.mlapp` to start the GUI.
-4. In the GUI, select the projector screen in the top-left `Projector Control` panel dropdown, then click `Preview` on the right of the dropdown to preview the projected structured light pattern.
-5. Then select the camera in the top-right `Camera Control` panel, click `Preview` button to start camera review, make sure the white board is in camera's and projector's FOV, i.e, the color grid covers the entire white board and the camera has a full view of the white board.
+3. Run `calibApp.mlapp` (or `ProCamCalib.exe`) to start the App.
+4. In the App (see screenshot above), select the projector screen in the top-left `Projector Control` panel dropdown, then click `Preview` on the right of the dropdown to preview the projected structured light pattern.
+5. Then select the camera in the top-right `Camera Control` panel, click `Preview` button to start camera review, make sure the white board is in both the camera's and the projector's FOV, i.e, the color grid covers the entire white board and the camera has a full view of the white board.
 6. Adjust the projector color grid brightness using the `Projector Brightness` slider and camera parameters using the sliders in `Camera Control` panel. Make sure the color grid is not underexposed or overexposed.
-7. Start to capture the images as shown in the gif below. The checkerboard and color grid images will be saved as `lightGrid[i].png` and `colorGrid[i].png`, where `i` is the ith position, e.g.,  `colorGrid01.png` is the color grid image at the 1st position. Although **at least three poses** are sufficient we highly encourage to take more, refer to [Bouguet][7] for a good example.
+7. Start to capture the images as shown in the gif below. The checkerboard and color grid images will be saved as `lightGrid[i].png` and `colorGrid[i].png`, where `i` is the ith position, e.g.,  `colorGrid01.png` is the color grid image at the 1st position. Although **at least three poses** are sufficient we highly recommend taking more, refer to [Bouguet][7] for a good example.
 8. Once sufficient images are captured, click `Calibration` tab on top and select the sets you want to use for calibration, then type the printed checkerboard square size in the text box below `Calibrate` button. Finally click `Calibrate` button.
 
 ![calib](doc/calib.gif)
 
+## 3D reconstruction
+1. Note that we use a sparse color grid, thus the reconstructed point cloud is sparse. To obtain a dense point cloud we reconstruct both the grid nodes and edges, then interpolate it to a dense point cloud.
+2. Click `Calibration` tab and load a calibration yml file by clicking `Load Calibration`, then select a set in the `Images` list and click `Reconstruct`.
+3. You can choose to use `Existing Mask` (saved under data folder) or draw your own object mask.
+4. `Use Edges` toggles color grid edge reconstruction.
 
-## Example Results
+![calib](doc/reconstruct.png)
+
+## Calibration comparisons
 * Reprojection error:
 
     | Method              | Camera  | Projector | Stereo  |
