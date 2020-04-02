@@ -4,4 +4,5 @@ camH: 480
 prjW: 800
 prjH: 600
 boardSize: [7, 10]
-sets: [1, 2, 3, 4, 5, 6, 7]
+sqSize: 24
+sets: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
