@@ -342,7 +342,7 @@ c = scatter(stereoParamsDG.camRes(:,1), stereoParamsDG.camRes(:,2), sz, 'LineWid
 d = scatter(stereoParamsPR.camRes(:,1), stereoParamsPR.camRes(:,2), sz, 'LineWidth', .1, 'markerfacecolor', colorList(4,:), 'MarkerEdgeColor', 'black'); daspect([1,1,1]); hold on;
 axis(sp1, [-2, 2,-1.5, 1.5]); box on;
 uistack(a, 'top');
-legend([a,b,c,d], {'Moreno & Taubin [29]', 'Global homography','Proposed w/o BA', 'Proposed'}, 'Location', 'northwest'); 
+legend([a,b,c,d], {'Moreno & Taubin', 'Global homography','Proposed w/o BA', 'Proposed'}, 'Location', 'northwest'); 
 xlabel('\fontsize{13}{0}\bf\selectfont x (pixel)', 'interpreter', 'latex');
 ylabel('\fontsize{13}{0}\bf\selectfont y (pixel)', 'interpreter', 'latex');
 set(gca, 'FontSize', 16); 
@@ -366,7 +366,7 @@ title('\fontsize{15}{0}\bf\selectfont Projector reprojection error', 'interprete
 hold off;
 
 %% Step 9. Compare 3D reconstruction
-% for calibration-11-13-17, you can use reonSet 8 (folded paper board), 9
-% (plaster bust), 10 (paper box).
-reconSet = '21'; % no need to write as %02d format
+% for calibration-6-3-19, journal paper results are reported using
+% reonSet 11 (frog), 18 (girl), 21 (jar)
+reconSet = '11'; 
 linkedFigs = Calibration.compareRealData(reconSet, calTypes, algNames, calibInfo);
