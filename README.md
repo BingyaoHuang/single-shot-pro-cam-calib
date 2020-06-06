@@ -11,12 +11,12 @@ Highlights:
 * A practical **open source projector-camera calibration software** with GUI is provided to benefit the society.
 
 For more info please refer to our [journal paper][8] and [conference paper][1].
+* To reproduce [journal paper][8] results please refer to [tase20][9] branch.
 * To reproduce [conference paper][1] results please refer to [ismar18][5] branch.
-* To reproduce [journal paper][1] results please refer to [tase20][9] branch.
 
-Updates:
-* **Updated 06/03/2020: [Journal paper][8] accepted**. 
-* **Updated 04/02/2020: Windows 64-bit executable released, no need to install MATLAB or OpenCV**. See [Windows 64-bit executable](#windows-64-bit-executable-matlab-and-opencv-not-required) below.
+## Updates:
+* **06/03/2020: [Journal paper][8] accepted**. 
+* **04/02/2020: Windows 64-bit executable released, no need to install MATLAB or OpenCV**. See [Windows 64-bit executable](#windows-64-bit-executable-matlab-and-opencv-not-required) below.
 
 
 ## Usage
@@ -60,7 +60,7 @@ Updates:
 ![calib](doc/reconstruct.png)
 
 ## Calibration comparisons
-_Below are results from our [conference paper][1] and the results can be reproduced in [ismar18][5] branch._
+_Below are results from our [conference paper][1] and can be reproduced in [ismar18][5] branch._
 _For the latest results, please refer to our [journal paper][8] and the results can be reproduced in [tase20][9] branch._
 
 * Reprojection error:
