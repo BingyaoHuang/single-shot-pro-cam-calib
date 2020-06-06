@@ -1,17 +1,22 @@
-A Single-shot-per-pose Camera-Projector Calibration System For Imperfect Planar Targets
+A Fast and Flexible Projector-Camera Calibration System
 ===
 
 ## Introduction
-A single-shot-per-pose camera-projector calibration method that deals with imperfect planarity of the calibration target. 
+A fast and flexible projector-camera calibration system that is single-shot-per-pose and deals with imperfect planarity of the calibration target. 
 
 Highlights:
-* The proposed method performs camera-projector pair calibration with only a single-shot-per-pose, making it practically convenient in many applications. It can provide flexible and accurate results even when the board is handheld.
-* A bundle adjustment (BA) algorithm is developed to jointly optimize the estimated camera/projector models and feature points in model space. 
-* Unlike many existing methods, to calibrate the system, we apply points from a **Structured Light (SL) pattern** rather than from a checkerboard. This strategy boosts not only the number of feature points but also their spatial distribution, and hence improves calibration robustness.
+* The system explicitly deals with the noise due to imperfect planarity with a novel **bundle adjustment** solution. 
+* Our calibration system applies **structured light (SL) pattern keypoints** rather than checkerboard corners. This strategy boosts both the number of keypoints and their spatial distribution, and hence improves calibration robustness.
+* Our system requires **only a single shot per pose**, making it practically convenient in many applications.
+* A practical **open source projector-camera calibration software** with GUI is provided to benefit the society.
 
-For more info please refer to our [paper][1]. **To reproduce paper results please refer to [ismar18][5] branch.**
+For more info please refer to our [journal paper][8] and [conference paper][1].
+* To reproduce [conference paper][1] results please refer to [ismar18][5] branch.
+* To reproduce [journal paper][1] results please refer to [tase20][9] branch.
 
-**Updated 04/02/2020: Windows 64-bit executable released, no need to install MATLAB or OpenCV**. See [Windows 64-bit executable](#windows-64-bit-executable-matlab-and-opencv-not-required) below.
+Updates:
+* **Updated 06/03/2020: [Journal paper][8] accepted**. 
+* **Updated 04/02/2020: Windows 64-bit executable released, no need to install MATLAB or OpenCV**. See [Windows 64-bit executable](#windows-64-bit-executable-matlab-and-opencv-not-required) below.
 
 
 ## Usage
@@ -55,6 +60,9 @@ For more info please refer to our [paper][1]. **To reproduce paper results pleas
 ![calib](doc/reconstruct.png)
 
 ## Calibration comparisons
+_Below are results from our [conference paper][1] and the results can be reproduced in [ismar18][5] branch._
+_For the latest results, please refer to our [journal paper][8] and the results can be reproduced in [tase20][9] branch._
+
 * Reprojection error:
 
     | Method              | Camera  | Projector | Stereo  |
@@ -98,6 +106,14 @@ The project folder is organized as follows:
 ## Citation
 Please cite these papers in your publications if it helps your research:
 
+    @article{huang2020flexible,
+        title={A Fast and Flexible Projector-Camera Calibration System}, 
+        author={Huang, Bingyao and Tang, Ying and Ozdemir, Samed and Ling, Haibin},
+        journal={IEEE Transactions on Automation Science and Engineering}, 
+        year={2020},
+        doi = {10.1109/TASE.2020.2994223}
+    }
+
     @inproceedings{huang2018single,
         title={A Single-shot-per-pose Camera-Projector Calibration System For Imperfect Planar Targets},
         author={Huang, Bingyao and Ozdemir, Samed and Tang, Ying and Liao, Chunyuan and Ling, Haibin},
@@ -128,4 +144,5 @@ This software is freely available for non-profit non-commercial use, and may be 
 [5]: https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/ismar18
 [6]: https://youtu.be/fnrVDOhcu7I
 [7]: http://www.vision.caltech.edu/bouguetj/calib_doc/htmls/calib_example/index.html
-
+[8]: http://vision.cs.stonybrook.edu/~bingyao/pub/calibration_TASE
+[9]: https://github.com/BingyaoHuang/single-shot-pro-cam-calib/tree/tase20
