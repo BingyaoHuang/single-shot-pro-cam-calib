@@ -11,7 +11,7 @@ Highlights:
 * A practical **open source projector-camera calibration software** with GUI is provided to benefit the society.
 
 For more info please refer to our [journal paper][8] and [conference paper][1].
-* To reproduce [journal paper][1] results, checkout this branch ([tase20][9]).
+* To reproduce [journal paper][8] results, checkout this branch ([tase20][9]).
 * To reproduce [conference paper][1] results please refer to [ismar18][5] branch.
 * **For the latest code, data and software please refer to [master](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/) branch.**
 
