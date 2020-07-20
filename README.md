@@ -33,7 +33,7 @@ For more info please refer to our [journal paper][8] and [conference paper][1].
 
 ## Tutorial
 1. Watch a short video tutorial [here][6].
-2. Note our method works best for camera resolution <=640x480 and projector resolution <=1920x1080. You can resize the camera image to wdith=640 for the best quality and speed.
+2. Note our method works best for camera resolution <=640x480 and projector resolution <=1920x1080. You can resize the camera image to wdith=640 for the best quality and speed. **If you want to use other resolutions please refer to this [issue](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/issues/10).**
 
 ----
 ## Calibration
