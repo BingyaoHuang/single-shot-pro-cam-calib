@@ -40,8 +40,10 @@ end
 % extract checkerboard corners
 [camCornersTemp, boardSize, usedImIdx] = detectCheckerboardPoints(imCheckerboardSmall);
 
-% scale checkerboard coordinates to the orginal size
-camCornersTemp = camCornersTemp * size(imCheckerboard, 2) / w;
+if(size(imCheckerboard, 2) > w)
+    % scale checkerboard coordinates to the orginal size
+    camCornersTemp = camCornersTemp * size(imCheckerboard, 2) / w;
+end
 
 if(nnz(boardSize == calibInfo.boardSize) < 2)
     error('Extracted checkerboard size does not match calib-info.yml, please check calib-info.yml and checkerboard image');
