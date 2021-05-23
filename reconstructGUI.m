@@ -39,7 +39,7 @@ verbose = app.reconOption.verbose;
 % start waitbar
 msg = 'Extracting structured light nodes from camera image...';
 waitBarHandle = waitbar(0.3, msg, 'Name', 'Reconstructing...');
-set(findall(waitBarHandle),'Units', 'normalized');
+set(findall(waitBarHandle, '-not', {'Type', 'AnnotationPane'}), 'Units', 'normalized');
 waitBarHandle.Position(3) = 0.3;
 disp(msg)
 

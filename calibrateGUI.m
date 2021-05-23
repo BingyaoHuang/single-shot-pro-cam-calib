@@ -50,7 +50,7 @@ format short
 % start waitbar
 msg = 'Extracting checkerboard corners from camera image...';
 waitBarHandle = waitbar(0, msg, 'Name', 'Calibrating pro-cam...');
-set(findall(waitBarHandle),'Units', 'normalized');
+set(findall(waitBarHandle, '-not', {'Type', 'AnnotationPane'}), 'Units', 'normalized');
 waitBarHandle.Position(3) = 0.3;
 
 %% Step 1: Get checkerboard corners from camera image
