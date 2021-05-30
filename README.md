@@ -15,6 +15,7 @@ For more info please refer to our [journal paper][8] and [conference paper][1].
 * To reproduce [conference paper][1] results please refer to [ismar18][5] branch.
 
 ## Updates:
+* **05/30/2021: Updated to MATLAB 2021a with new App Designer features. Older versions may have incompatibility issues**. 
 * **06/03/2020: [Journal paper][8] accepted**. 
 * **04/02/2020: Windows 64-bit executable released, no need to install MATLAB or OpenCV**. See [Windows 64-bit executable](#windows-64-bit-executable-matlab-and-opencv-not-required) below.
 
@@ -22,13 +23,13 @@ For more info please refer to our [journal paper][8] and [conference paper][1].
 ## Usage
 
 #### Build from source
-1. Install MATLAB >= 2018b.
+1. Install MATLAB 2021a.
 2. Install [mexOpenCV v3.3.0][2]
 3. Clone this repo and run `calibApp.mlapp` to start the App.
 
 #### Windows 64-bit executable (MATLAB and OpenCV not required)
-1. Install [MATLAB Runtime >= 2018b for Windows 64-bit](https://www.mathworks.com/products/compiler/matlab-runtime.html).
-2. Download and extract [ProCamCalib_v0.1.zip](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/releases/download/v0.1/ProCamCalib_v0.1.zip).
+1. Install [MATLAB Runtime 2021a for Windows 64-bit](https://www.mathworks.com/products/compiler/matlab-runtime.html).
+2. Download and extract [ProCamCalib_v0.2.zip](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/releases/download/v0.1/ProCamCalib_v0.2.zip).
 3. Run `ProCamCalib.exe`.
 
 ## Tutorial
