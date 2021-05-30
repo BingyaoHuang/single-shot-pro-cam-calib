@@ -47,9 +47,12 @@ useDistortion = app.calibOption.useDistortion;
 
 format short
 
+% close previous waitbar
+delete(findall(0,'type','figure','tag','TMWWaitbar'));
+
 % start waitbar
 msg = 'Extracting checkerboard corners from camera image...';
-waitBarHandle = waitbar(0, msg, 'Name', 'Calibrating pro-cam...');
+waitBarHandle = waitbar(0, msg, 'Name', 'Calibrating...');
 set(findall(waitBarHandle, '-not', {'Type', 'AnnotationPane'}), 'Units', 'normalized');
 waitBarHandle.Position(3) = 0.3;
 
