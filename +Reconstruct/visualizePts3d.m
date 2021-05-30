@@ -31,7 +31,7 @@ Rt = R';
 prjOrg = (Rt*(-T))';
 
 % draw
-figure('Name', [figTitle ' 3d point cloud'] );
+figure(Name=[figTitle ' 3d point cloud'], Units='normalized', Position=[0.3 0.3 0.2 0.3]);
 hold on;
 title([figTitle ' 3d point cloud'] );
 
