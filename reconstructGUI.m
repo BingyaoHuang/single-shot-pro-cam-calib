@@ -36,6 +36,9 @@ stereoParams = app.stereoParams;
 % debug option, enable for visuals/figures
 verbose = app.reconOption.verbose;
 
+% close previous waitbar
+delete(findall(0,'type','figure','tag','TMWWaitbar'));
+
 % start waitbar
 msg = 'Extracting structured light nodes from camera image...';
 waitBarHandle = waitbar(0.3, msg, 'Name', 'Reconstructing...');
