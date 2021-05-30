@@ -152,9 +152,10 @@ stereoParams = Calibration.calcReprojectionError(stereoParams, stereoParams.mode
 %3. Display calibration results
 app.stereoParams = stereoParams;
 disp(app.stereoParams)
+Calibration.showReprojectionErrors(app.stereoParams, calibInfo);
 
 % debug
-Reconstruct.visualizePts3d(cell2mat(stereoParams.worldPts'), stereoParams.R, stereoParams.T, 'Pro-cam extrinsics and reconstructed SL nodes');
+Reconstruct.visualizePts3d(cell2mat(stereoParams.worldPts'), stereoParams.R, stereoParams.T, 'ProCams extrinsics and reconstructed SL nodes');
 
 %% Step 6. Save calibration data
 calibFileFullName = fullfile(calibInfo.resultDir, ['calibration' , '.yml']);
