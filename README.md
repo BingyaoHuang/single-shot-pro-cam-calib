@@ -29,7 +29,7 @@ For more info please refer to our [journal paper][8] and [conference paper][1].
 
 #### Windows 64-bit executable (MATLAB and OpenCV not required)
 1. Install [MATLAB Runtime 2021a for Windows 64-bit](https://www.mathworks.com/products/compiler/matlab-runtime.html).
-2. Download and extract [ProCamCalib_v0.2.zip](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/releases/download/v0.1/ProCamCalib_v0.2.zip).
+2. Download and extract [ProCamCalib_v0.2.zip](https://github.com/BingyaoHuang/single-shot-pro-cam-calib/releases/download/v0.2/ProCamCalib_v0.2.zip).
 3. Run `ProCamCalib.exe`.
 
 ## Tutorial
