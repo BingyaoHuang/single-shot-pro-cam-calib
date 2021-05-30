@@ -76,7 +76,7 @@ if(app.reconOption.useExistingMask)
     end
 else
     % manually select roi to be reconstructed
-    msg = 'Waiting user to draw the region to be reconstructed...';
+    msg = 'Waiting for user to draw the target object ROI';
     waitbar(0.4, waitBarHandle, msg);
     disp(msg);
     app.ManualSegButton.ButtonPushedFcn(app, [])
