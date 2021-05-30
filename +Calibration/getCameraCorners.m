@@ -24,8 +24,7 @@ function [camCorners, usedImIdx] = getCameraCorners(calibInfo)
 
 %%
 % Get a list of images that has 'light' in file name.
-imLightNames = ImgProc.getImageNames(calibInfo.path, 'light');
-imLightNames = imLightNames(calibInfo.sets);
+imLightNames = ImgProc.getImageNames(calibInfo.path, 'lightGrid', calibInfo.sets);
 
 % resize image to width = 640, since MATLAB detectCheckerboardPoints may fail on large images.
 w = 640;

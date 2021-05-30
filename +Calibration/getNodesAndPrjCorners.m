@@ -28,8 +28,8 @@ if(nargin < 5)
 end
 
 % parse image names
-imLightNames = ImgProc.getImageNames(calibInfo.path, 'light', calibInfo.sets);
-imColorNames = ImgProc.getImageNames(calibInfo.path, 'color', calibInfo.sets);
+imLightNames = ImgProc.getImageNames(calibInfo.path, 'lightGrid', calibInfo.sets);
+imColorNames = ImgProc.getImageNames(calibInfo.path, 'colorGrid', calibInfo.sets);
 imPatternName = fullfile(calibInfo.path, 'pattern.png');
 
 % generate color grid pattern if it does not exist

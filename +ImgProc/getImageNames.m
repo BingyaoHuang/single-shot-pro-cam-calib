@@ -23,14 +23,7 @@ function imNames = getImageNames(calibPath, keyword, idx)
 % SOFTWARE.
 
 %%
+paddedIdx = arrayfun(@(x) num2str(x,'%02.f'), idx, 'UniformOutput', false);
+imNames = cellfun(@(x) fullfile(calibPath, [keyword, x, '.png']), paddedIdx, 'UniformOutput', false);
 
-calibDirList = dir(calibPath);
-fileIdx = arrayfun(@(x) ~isempty(strfind(x.name, keyword)), calibDirList);
-vecFiles = calibDirList(fileIdx);
-
-imNames = arrayfun(@(x) fullfile(calibPath, x.name), vecFiles, 'UniformOutput', false);
-
-if(nargin > 2)
-    imNames = imNames(idx);
-end
 end
